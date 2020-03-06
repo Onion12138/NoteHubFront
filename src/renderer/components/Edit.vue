@@ -27,6 +27,7 @@
 </template>
 
 <script>
+import {getRequest} from '../../utils/request'
 export default {
     name: 'edit',
     data() {
@@ -37,35 +38,16 @@ export default {
           description: "",
           tag: ""
         },
-        tags: [{
-          value: '人工智能',
-          label: '人工智能',
-          children: [{
-            value: '机器学习',
-            label: '机器学习',
-          },{
-            value: '深度学习',
-            label: '深度学习', 
-          }]
-        },{
-          value: '前端开发',
-          label: '前端开发',
-          children: [{
-            value: 'Html',
-            label: 'Html'
-          },{
-            value: 'css',
-            label: 'css'
-          }]
-        },{
-          value: "自定义",
-          label: "自定义"
-        }]
+        tags: []
       }
     },
     mounted() {
       this.note.content = this.$route.query.content
       this.note.forkFrom = this.$route.query.forkFrom
+      getRequest("/noteApi/user/findTag").then((response)=>{
+        console.log(response)
+        this.tags = response.data.data
+      })
     },
     methods: {
       handleChange() {

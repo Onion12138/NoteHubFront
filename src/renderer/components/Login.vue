@@ -57,8 +57,7 @@
               localStorage.setItem("profileUrl",data.profileUrl)
               localStorage.setItem("token",data.token)
               localStorage.setItem("username",data.username)
-              localStorage.setItem("collectIndexes",data.collectIndexes)
-              localStorage.setItem("collectNotes",data.collectNotes)
+              localStorage.setItem("mindmap",JSON.stringify(data.mindMapList))
             })
             this.$router.replace("/home")
           }else{
