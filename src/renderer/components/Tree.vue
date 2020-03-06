@@ -17,12 +17,55 @@
 export default {
   data() {
     return {
-      data: {
-        id: 0,
+        data: {
+            children: [
+            {
+                children: [
+                    {
+                        children: [],
+                        label: "Docker",
+                        level: 3
+                    },
+                    {
+                        children: [
+                            {
+                                children: [],
+                                label: "缓存预热",
+                                level: 4
+                            },
+                            {
+                                children: [],
+                                label: "缓存雪崩",
+                                level: 4
+                            },
+                            {
+                                children: [],
+                                label: "缓存击穿",
+                                level: 4
+                            },
+                            {
+                                children: [],
+                                label: "缓存穿透",
+                                level: 4
+                            }
+                        ],
+                        label: "企业级解决方案",
+                        level: 3
+                    }
+                ],
+                label: "Redis",
+                level: 2
+            }
+        ],
+        label: "Redis",
+        level: 0
+      },
+      data1: {
+        // id: 0,
         label: "度量指标体系",
         children: [
           {
-            id: 1,
+            // id: 1,
             label: "交付质量",
             children: [
               {

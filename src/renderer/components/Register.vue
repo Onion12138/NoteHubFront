@@ -36,10 +36,26 @@
     </el-form-item>
 
   </el-form>
+  <el-dialog
+      title="选择你感兴趣的tag"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      :show-close="false"
+      :destroy-on-close="true"
+      :visible.sync="dialogVisible"
+      :center="true">
+      <el-checkbox-group v-model="chooseTags">
+        <el-checkbox-button v-for="tag in tags" :label="tag.name" :key="tag._id">{{tag.name}}</el-checkbox-button>
+      </el-checkbox-group>
+    <span slot="footer" class="dialog-footer">
+      <el-button type="primary" @click="confirmChooseTags" :disabled="chooseTags.length < 1">确 定</el-button>
+    </span>
+    </el-dialog>
     </el-main>
 </template>
 
 <script>
+  import {postParamRequest, postJsonRequest, getRequest} from '../../utils/request'
   export default{
     name: "register",
     data(){
@@ -90,20 +106,65 @@
         msg: '发送验证码',
         timer: null,
         count: '',
+        dialogVisible: false,
+        chooseTags: [],
+        tags: [{
+            _id: 0,
+            name: "人工智能"
+        },{
+            _id: 1,
+            name: "前端开发"
+        },{
+            _id: 2,
+            name: "后端开发"
+        },{
+            _id: 3,
+            name: "移动/游戏开发"
+        },{
+            _id: 4,
+            name: "大数据云计算"
+        },{
+            _id: 5,
+            name: "测试运维"
+        },{
+            _id: 6,
+            name: "密码安全"
+        },{
+            _id: 7,
+            name: "学科基础"
+        },{
+            _id: 8,
+            name: "编程语言"
+        }],
       }
     },
     methods: {
+      confirmChooseTags() {
+        postParamRequest("/noteApi/user/chooseTags",{tagStr:this.chooseTags.join(",")}).then((response)=>{
+          if(response.data.code === 200){
+            this.$router.replace('/home')
+            this.dialogVisible = false
+          }
+        })
+      },
       submitForm(formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            this.$router.replace('/home')
+            postJsonRequest("/noteApi/user/register",this.registerForm).then((response)=>{
+              if(response.data.code === 200){
+                alert("注册成功")
+                this.dialogVisible = true
+              }else{
+                alert(response.data.message)
+              }
+            })
           } else {
             alert('请正确填写注册信息')
             return false
           }
         })
       },
-      sendCode: function (formName) {
+      sendCode(formName) {
         this.$refs[formName].validateField('email',msg =>{
           if(msg === ""){
             this.count = 30
@@ -117,6 +178,14 @@
                 this.msg = '发送验证码'
               }
             }, 1000)
+            getRequest("/noteApi/user/sendCode", {email:this.registerForm.email}
+            ).then((response)=>{
+              if(response.data.code === 200){
+                alert("发送成功")
+              }else{
+                alert("发送失败")
+              }
+            })
           }else{
             alert('请正确填写邮箱')
           }

@@ -30,7 +30,7 @@
 
 </template>
 <script>
-  import {noteApi} from '../../utils/path'
+  import {postJsonRequest} from '../../utils/request'
   export default{
     name: "login",
     data(){
@@ -51,8 +51,14 @@
       submitClick: function (formName) {
         this.$refs[formName].validate((valid)=>{
           if(valid){
-            this.axios.post(noteApi + '/user/login', this.loginForm).then((response)=>{
-              console.log("response:",response)
+            postJsonRequest('/noteApi/user/login', this.loginForm).then((response)=>{
+              let data = response.data.data
+              alert("欢迎您:"+data.username)
+              localStorage.setItem("profileUrl",data.profileUrl)
+              localStorage.setItem("token",data.token)
+              localStorage.setItem("username",data.username)
+              localStorage.setItem("collectIndexes",data.collectIndexes)
+              localStorage.setItem("collectNotes",data.collectNotes)
             })
             this.$router.replace("/home")
           }else{

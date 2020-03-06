@@ -1,6 +1,6 @@
 <template>
     <el-container style="height: 800px; border: 1px solid #eee">
-  <!-- <div style="margin-top: 15px;"> -->
+
     <el-header>
     <el-input placeholder="请输入内容" v-model="input" class="input-with-select">
         <el-select v-model="select" slot="prepend" placeholder="选择搜索方式">
@@ -70,8 +70,19 @@
   <el-drawer
   title="笔记结构图"
   :visible.sync="drawer"
+  size="80%"
   >
-  <el-tree :data="treeData" :props="defaultProps" @node-click="handleNodeClick"></el-tree>
+  <!-- <el-tree :data="treeData" :props="defaultProps" @node-click="handleNodeClick"></el-tree> -->
+  <vue2-org-tree
+            name="test"
+            :data="data"
+            :horizontal="horizontal"
+            :collapsable="collapsable"
+            :label-class-name="labelClassName"
+            :render-content="renderContent"
+            @on-expand="onExpand"
+            @on-node-click="onNodeClick"
+          />
 </el-drawer>
     </el-main>
     <el-footer>
@@ -106,41 +117,6 @@ export default {
                 summary: 'Linux操作系统指令合集',
                 description: 'Linux常用命令',
                 tag: '操作系统',
-                tree: [{
-                    labe: '一级 1',
-                    children: [{
-                        labe: '二级 1-1',
-                        children: [{
-                            labe: '三级 1-1-1'
-                        }]
-                    }]
-                    }, {
-                    labe: '一级 2',
-                    children: [{
-                        labe: '二级 2-1',
-                        children: [{
-                            labe: '三级 2-1-1'
-                        }]
-                        }, {
-                        labe: '二级 2-2',
-                        children: [{
-                            labe: '三级 2-2-1'
-                        }]
-                    }]
-                }, {
-                    labe: '一级 3',
-                    children: [{
-                        labe: '二级 3-1',
-                        children: [{
-                            labe: '三级 3-1-1'
-                        }]
-                    }, {
-                        labe: '二级 3-2',
-                        children: [{
-                            labe: '三级 3-2-1'
-                        }]
-                    }]
-                }],
             }, {
                 noteId: 2,
                 publishTime: '2018-07-02',
@@ -167,7 +143,52 @@ export default {
             },
             treeData: [],
             currentPage: 2,
+            data: {
+              children: [
+              {
+                children: [{
+                    children: [],
+                    label: "Docker",
+                    level: 3
+                },{
+                    children: [{
+                                children: [],
+                                label: "缓存预热",
+                                level: 4
+                            },
+                            {
+                                children: [],
+                                label: "缓存雪崩",
+                                level: 4
+                            },
+                            {
+                                children: [],
+                                label: "缓存击穿",
+                                level: 4
+                            },
+                            {
+                                children: [],
+                                label: "缓存穿透",
+                                level: 4
+                            }
+                        ],
+                        label: "企业级解决方案",
+                        level: 3
+                    }
+                ],
+                label: "Redis",
+                level: 2
+            }
+        ],
+        label: "Redis",
+        level: 0
+      },
+       horizontal: true,
+      collapsable: true,
+      expandAll: false,
+      labelClassName: "bg-white"
         }
+      
     },
     methods: {
         handleViewDetail(index, row) {
@@ -186,7 +207,57 @@ export default {
         },
         handleCurrentChange(val) {
           console.log(`当前页: ${val}`);
+        },
+        renderContent(h, data) {
+          return data.label;
+        },
+        onExpand(e, data) {
+          if ("expand" in data) {
+            data.expand = !data.expand;
+          if (!data.expand && data.children) {
+            this.collapse(data.children);
+          }
+          } else {
+          this.$set(data, "expand", true);
+          }
+        },
+    //点击选项执行的方法，可以用于跳转到其他链接，注意一定要写协议头
+        onNodeClick(e, data) {
+    //    alert(data.label);
+          if(data.url==null){
+            return false
+          }else{
+            window.open(data.url)
+          }
+        },
+        collapse(list) {
+      var _this = this;
+      list.forEach(function(child) {
+        if (child.expand) {
+          child.expand = false;
         }
+        child.children && _this.collapse(child.children);
+      });
+    },
+    expandChange() {
+      this.toggleExpand(this.data, this.expandAll);
+    },
+    toggleExpand(data, val) {
+      var _this = this;
+      if (Array.isArray(data)) {
+        data.forEach(function(item) {
+          _this.$set(item, "expand", val);
+          if (item.children) {
+            _this.toggleExpand(item.children, val);
+          }
+        });
+      } else {
+        this.$set(data, "expand", val);
+        if (data.children) {
+          _this.toggleExpand(data.children, val);
+        }
+      }
+    }
     }
 }
 </script>
@@ -209,4 +280,28 @@ export default {
     margin-bottom: 0;
     width: 100%;
   }
+  .org-tree-node-label {
+  white-space: nowrap;
+}
+.bg-white {
+  background-color: white;
+}
+.bg-orange {
+  background-color: orange;
+}
+.bg-gold {
+  background-color: gold;
+}
+.bg-gray {
+  background-color: gray;
+}
+.bg-lightpink {
+  background-color: lightpink;
+}
+.bg-chocolate {
+  background-color: chocolate;
+}
+.bg-tomato {
+  background-color: tomato;
+}
 </style>
