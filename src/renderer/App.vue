@@ -16,12 +16,10 @@
                <el-menu-item index="1-3">
                 <router-link to='/login'>登录</router-link>
                </el-menu-item>
-               <el-menu-item index="1-4">
-                <router-link to='/tree'>树</router-link>
-               </el-menu-item>
+              
             </el-submenu>
             <el-submenu index="2">
-              <template slot="title"><i class="el-icon-menu"></i>探索</template>           
+              <template slot="title"><i class="el-icon-s-opportunity"></i>探索</template>           
               <el-menu-item index="2-1">
                 <router-link to='/search'>搜索</router-link>
                </el-menu-item>
@@ -31,22 +29,28 @@
                 <el-menu-item index="2-3">
                 <router-link to='/edit'>发布</router-link>
                </el-menu-item>
+               <el-menu-item index="2-4">
+                <router-link to='/tag'>筛选</router-link>
+               </el-menu-item>
             </el-submenu>
             <el-submenu index="3">
               <template slot="title"><i class="el-icon-menu"></i>推荐</template>           
               <el-menu-item index="3-1"><router-link to='/recommend'>推荐</router-link></el-menu-item>
             </el-submenu>
             <el-submenu index="4">
-              <template slot="title"><i class="el-icon-setting"></i>我的</template>            
+              <template slot="title"><i class="el-icon-user"></i>我的</template>            
                 <el-menu-item index="4-2">
-                    <router-link to='/mine'>我的</router-link>
+                    <router-link to='/mine'>资料</router-link>
                 </el-menu-item>
                 <el-menu-item index="4-4">
                     <router-link to='/message'>消息</router-link>
                 </el-menu-item>
                  <el-menu-item index="4-5">
                     <router-link to='/collect'>收藏</router-link>
-                </el-menu-item>                  
+                </el-menu-item>
+                 <el-menu-item index="4-6">
+                <router-link to='/tree'>自定义导图</router-link>
+               </el-menu-item>                  
             </el-submenu>
           </el-menu>
         </el-aside>

@@ -13,6 +13,7 @@ import Register from '@/components/Register'
 import Login from '@/components/Login'
 import Tree from '@/components/Tree'
 import Collect from '@/components/Collect'
+import Tag from '@/components/Tag'
 Vue.use(VueRouter)
 
 export default new VueRouter({
@@ -22,6 +23,11 @@ export default new VueRouter({
       name: 'home',
       component: Home
     },{
+      path: '/tag',
+      name: 'tag',
+      component: Tag
+    },
+    {
       path: '/tree',
       name: 'tree',
       component: Tree

@@ -1,287 +1,86 @@
 <template>
   <div class="text-center">
-          <vue2-org-tree
-            name="test"
-            :data="data"
-            :horizontal="horizontal"
-            :collapsable="collapsable"
-            :label-class-name="labelClassName"
-            :render-content="renderContent"
-            @on-expand="onExpand"
-            @on-node-click="onNodeClick"
-          />
-    </div>
+    <el-dialog
+    :visible.sync="dialogVisible"
+    :before-close="handleCancel"
+    title="输入根节点名称"
+    >
+    <el-input v-model="root"></el-input>
+    <el-button type="primary" @click="handleConfirm">确认</el-button>
+</el-dialog>
+    <el-dialog
+     :visible.sync="operate"
+    >
+       <el-input v-model="input" placeholder="输入子节点名称"></el-input>
+       <el-button type="primary" @click="handleSubmmit">添加</el-button>
+       <el-button type="warning" @click="handleDelete">删除子节点</el-button>
+    </el-dialog>
+    <vue2-org-tree
+      name="test"
+      :data="data2"
+      :horizontal="horizontal"
+      :collapsable="collapsable"
+      :label-class-name="labelClassName"
+      :render-content="renderContent"
+      @on-expand="onExpand"
+      @on-node-click="onNodeClick"
+    />
+    <el-button type="warning" @click="handleCancel"> 取消</el-button>
+    <el-button type="primary" @click="handlePublish"> 发布</el-button>
+  </div>
 </template>
 
 <script>
+import {postJsonRequest} from '../../utils/request'
 export default {
   data() {
     return {
-        data: {
-            children: [
-            {
-                children: [
-                    {
-                        children: [],
-                        label: "Docker",
-                        level: 3
-                    },
-                    {
-                        children: [
-                            {
-                                children: [],
-                                label: "缓存预热",
-                                level: 4
-                            },
-                            {
-                                children: [],
-                                label: "缓存雪崩",
-                                level: 4
-                            },
-                            {
-                                children: [],
-                                label: "缓存击穿",
-                                level: 4
-                            },
-                            {
-                                children: [],
-                                label: "缓存穿透",
-                                level: 4
-                            }
-                        ],
-                        label: "企业级解决方案",
-                        level: 3
-                    }
-                ],
-                label: "Redis",
-                level: 2
-            }
-        ],
-        label: "Redis",
-        level: 0
+      root: "",
+      input: "",
+      dialogVisible: false,
+      operate: false,
+      data2: {
+        children: [],
+        label: ""
       },
-      data1: {
-        // id: 0,
-        label: "度量指标体系",
-        children: [
-          {
-            // id: 1,
-            label: "交付质量",
-            children: [
-              {
-                id: 11,
-                label: "生产质量",
-                children: [
-                  {
-                    id: 111,
-                    label: "生产事件"
-                  }
-                ]
-              },
-              {
-                id: 12,
-                label: "开发质量",
-                children: [
-                  {
-                    id: 121,
-                    label: "项目开发缺陷密度"
-                  }
-                ]
-              },
-              {
-                id: 13,
-                label: "发布质量",
-                children: [
-                  {
-                    id: 131,
-                    label: "上线失败率"
-                  }
-                ]
-              },
-              {
-                id: 14,
-                label: "过程质量",
-                children: [
-                  {
-                    id: 141,
-                    label: "项目过程符合度"
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            id: 2,
-            label: "交付效能",
-            children: [
-              {
-                id: 21,
-                label: "交付能力",
-                children: [
-                  {
-                    id: 211,
-                    label: "功能点产出"
-                  },
-                  {
-                    id: 212,
-                    label: "代码行产出"
-                  },
-                  {
-                    id: 213,
-                    label: "上线投产次数"
-                  },
-                  {
-                    id: 214,
-                    label: "接收需求数"
-                  },
-                  {
-                    id: 215,
-                    label: "立项数"
-                  },
-                  {
-                    id: 216,
-                    label: "结项数"
-                  },
-                  {
-                    id: 217,
-                    label: "迭代速率"
-                  },
-                  {
-                    id: 218,
-                    label: "迭代完成率"
-                  }
-                ]
-              },
-              {
-                id: 22,
-                label: "交付效率",
-                children: [
-                  {
-                    id: 221,
-                    label: "人均产出功能点"
-                  },
-                  {
-                    id: 222,
-                    label: "项目生产率"
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            id: 3,
-            label: "业务满意度",
-            children: [
-              {
-                id: 31,
-                label: "业务满意度"
-              }
-            ]
-          },
-          {
-            id: 4,
-            label: "交付价值",
-            children: [
-              {
-                id: 41,
-                label: "业务价值关键指标"
-              }
-            ]
-          },
-          {
-            id: 5,
-            label: "交付速度",
-            children: [
-              {
-                id: 51,
-                label: "需求评估速度",
-                children: [
-                  {
-                    id: 511,
-                    label: "需求响应度"
-                  }
-                ]
-              },
-              {
-                id: 52,
-                label: "开发速度",
-                children: [
-                  {
-                    id: 521,
-                    label: "完成度天数"
-                  },
-                  {
-                    id: 522,
-                    label: "完成度达标率"
-                  },
-                  {
-                    id: 523,
-                    label: "故事平均测试通过周期"
-                  }
-                ]
-              },
-              {
-                id: 53,
-                label: "发布速度",
-                children: [
-                  {
-                    id: 531,
-                    label: "首次交付天数"
-                  },
-                  {
-                    id: 532,
-                    label: "首次交付达标率"
-                  },
-                  {
-                    id: 533,
-                    label: "故事平均发布周期"
-                  }
-                ]
-              },
-              {
-                id: 54,
-                label: "燃尽图"
-              },
-              {
-                id: 55,
-                label: "一次测试通过率"
-              }
-            ]
-          },
-          {
-            id: 6,
-            label: "持续交付",
-            children: [
-              {
-                id: 61,
-                label: "技术债务率",
-                url: "https://world.taobao.com/"
-              },
-              {
-                id: 62,
-                label: "DEVOPS成熟度",
-                url: " http://www.baidu.com"
-              },
-              {
-                id: 63,
-                label: "DEVOPS健康度",
-                url: " https://www.google.com/"
-              }
-            ]
-          }
-        ]
-      },
+      currentNode: {},
       horizontal: true,
       collapsable: true,
-      expandAll: false,
+      expandAll: true,
       labelClassName: "bg-white"
     };
   },
+  mounted() {
+    this.dialogVisible = true
+  },
   methods: {
+    handleCancel() {
+      this.$router.replace('/home')
+    },
+    handleDelete() {
+      this.currentNode.children = []
+      this.operate = false
+      this.input = ""
+    },
+    handleSubmmit() {
+      this.currentNode.children.push({label:this.input,children:[]})
+      this.operate = false
+      this.input = ""
+    },
+    handlePublish(){
+      postJsonRequest("/noteApi/user/addMindMap",this.data2).then(response=>{
+        console.log(response.data.data)
+      })
+    },
+    handleConfirm(){
+      this.data2.label = this.root
+      this.dialogVisible = false
+    },
     renderContent(h, data) {
       return data.label;
     },
     onExpand(e, data) {
+      data.flag = true
       if ("expand" in data) {
         data.expand = !data.expand;
         if (!data.expand && data.children) {
@@ -291,14 +90,13 @@ export default {
         this.$set(data, "expand", true);
       }
     },
-    //点击选项执行的方法，可以用于跳转到其他链接，注意一定要写协议头
     onNodeClick(e, data) {
-    //    alert(data.label);
-       if(data.url==null){
+      if(data.flag){
+        data.flag = false
         return false
-      }else{
-        window.open(data.url)
       }
+      this.currentNode = data
+      this.operate = true
     },
     collapse(list) {
       var _this = this;
@@ -329,7 +127,7 @@ export default {
       }
     }
   }
-}
+};
 </script>
 <style type="text/css">
 .org-tree-node-label {

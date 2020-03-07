@@ -57,9 +57,8 @@
               localStorage.setItem("profileUrl",data.profileUrl)
               localStorage.setItem("token",data.token)
               localStorage.setItem("username",data.username)
-              localStorage.setItem("mindmap",JSON.stringify(data.mindMapList))
-            })
-            this.$router.replace("/home")
+              localStorage.setItem("mindmap",JSON.stringify(data.mindMapList))})
+              this.$router.replace("/home")
           }else{
             alert("请正确输入信息")
           }
