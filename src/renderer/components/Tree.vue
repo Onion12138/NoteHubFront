@@ -17,7 +17,7 @@
     </el-dialog>
     <vue2-org-tree
       name="test"
-      :data="data2"
+      :data="data"
       :horizontal="horizontal"
       :collapsable="collapsable"
       :label-class-name="labelClassName"
@@ -39,9 +39,10 @@ export default {
       input: "",
       dialogVisible: false,
       operate: false,
-      data2: {
+      data: {
         children: [],
-        label: ""
+        label: "",
+        value: ""
       },
       currentNode: {},
       horizontal: true,
@@ -63,17 +64,18 @@ export default {
       this.input = ""
     },
     handleSubmmit() {
-      this.currentNode.children.push({label:this.input,children:[]})
+      this.currentNode.children.push({label:this.input,value:this.input,children:[]})
       this.operate = false
       this.input = ""
     },
     handlePublish(){
-      postJsonRequest("/noteApi/user/addMindMap",this.data2).then(response=>{
+      postJsonRequest("/noteApi/user/addMindMap",this.data).then(response=>{
         console.log(response.data.data)
       })
     },
     handleConfirm(){
-      this.data2.label = this.root
+      this.data.label = this.root
+      this.data.value = this.root
       this.dialogVisible = false
     },
     renderContent(h, data) {

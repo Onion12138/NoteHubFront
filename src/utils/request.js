@@ -15,7 +15,8 @@ export const postEncodedRequest = (url, params) => {
       return ret
     }],
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'token': 'token' + localStorage.getItem("token")
     }
   });
 }

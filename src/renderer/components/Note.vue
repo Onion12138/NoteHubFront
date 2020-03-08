@@ -1,129 +1,294 @@
 <template>
   <el-container>
     <el-header>
-     <el-button type="text" icon="el-icon-back" @click="goBack" style="padding-bottom: 0px;">返回</el-button>
+      <el-button type="text" icon="el-icon-back" @click="goBack" style="padding-bottom: 0px;">返回</el-button>
     </el-header>
     <el-main>
       <div style="text-align:center">{{note.description}}</div>
-        <!-- <div> -->
-           <el-row>
-             <el-col :span="6">
-          <el-avatar :src="note.profileUrl"></el-avatar>
-          <span>{{note.authorName}}</span>
-             </el-col>
-            <el-col :span="6">
+      <!-- <div> -->
+      <el-row>
+        <el-col :span="6">
+          <el-avatar :src="author.profileUrl"></el-avatar>
+          <span>{{author.username}}</span>
+        </el-col>
+        <el-col :span="6">
           <el-tag>{{note.tag}}</el-tag>
-            </el-col>
-            <el-col :span="6">
+        </el-col>
+        <el-col :span="6">
           <el-tag v-if="note.forkFrom===''" type="success">原创</el-tag>
           <el-tag v-else type="info">再创作</el-tag>
-            </el-col>
-            <el-col :span="6">
+        </el-col>
+        <el-col :span="6">
           <el-tag v-if="note.authority" type="success">允许分支创作</el-tag>
-          <el-tag v-else type="danger">不允许再创作</el-tag>
-            </el-col>
-          </el-row>
-        <!-- </div> -->
-      <!-- <el-divider><i class="el-icon-s-opportunity"></i></el-divider> -->
+          <el-tag v-else type="danger">不允许分支</el-tag>
+        </el-col>
+      </el-row>
       <el-row :gutter="20">
         <el-col :span="6">
-          <el-link type="primary">关注作者<i class="el-icon-star-on"></i></el-link>
+          <el-link type="primary" @click="follow">
+            关注作者
+            <i class="el-icon-star-on"></i>
+          </el-link>
         </el-col>
         <el-col :span="6">
-          <el-link type="primary" @click="chatWithAuthor()">联系作者<i class="el-icon-chat-line-square"></i></el-link>
+          <el-link type="primary" @click="chatWithAuthor">
+            联系作者
+            <i class="el-icon-chat-line-square"></i>
+          </el-link>
         </el-col>
         <el-col :span="6">
-            <el-link type="primary" :disabled="!note.authority" @click="fork">分支创作<i class="el-icon-edit"></i></el-link>
+          <el-link type="primary" :disabled="note.forkFrom ===''" @click="viewOriginal">
+            查看原版
+            <i class="el-icon-magic-stick"></i>
+          </el-link>
         </el-col>
         <el-col :span="6">
-          <el-link type="primary">查看笔记结构<i class="el-icon-s-order"></i></el-link>
+          <el-link type="primary" @click="viewTree">
+            查看笔记结构
+            <i class="el-icon-s-order"></i>
+          </el-link>
         </el-col>
       </el-row>
-      <el-divider><i class="el-icon-notebook-1"></i></el-divider>
+      <el-divider>
+        <i class="el-icon-notebook-1"></i>
+      </el-divider>
       <el-row>
-      <mavon-editor 
-      style="height: 100%;width: 100%;"
-      v-model="note.content"
-      :ishljs = "true"
-      :subfield="false"
-      :toolbarsFlag="false"
-      defaultOpen="preview"
-      :editable="false"
-      />
+        <mavon-editor
+          style="height: 100%;width: 100%;"
+          v-model="note.content"
+          :ishljs="true"
+          :subfield="false"
+          :toolbarsFlag="false"
+          defaultOpen="preview"
+          :editable="false"
+        />
       </el-row>
-      <el-divider><i class="el-icon-notebook-1"></i></el-divider>
+      <el-divider>
+        <i class="el-icon-notebook-1"></i>
+      </el-divider>
       <el-row :gutter="18">
-        <el-col :span="5">
-          <i class="el-icon-view">{{"浏览数:" + note.view}}</i>
-        </el-col>
-        <el-col :span="5">
-          <i class="el-icon-thumb">{{"点赞数:" + note.star}}</i>
-        </el-col>
-        <el-col :span="5">
-          <i class="el-icon-document-add">{{"收藏数:" + note.collect}}</i>
-        </el-col>
-        <el-col :span="5">
-          <i class="el-icon-baseball">{{"踩数:" + note.hate}}</i>
+        <el-col :span="4">
+          <el-button icon="el-icon-view" circle type="text" disabled>浏览</el-button>
+          <i>{{note.view}}</i>
         </el-col>
         <el-col :span="4">
-          <i class="el-icon-fork-spoon">{{"fork数:" + note.fork}}</i>
+          <el-button icon="el-icon-thumb" circle type="success" @click="star">点赞</el-button>
+          <i>{{note.star}}</i>
+        </el-col>
+        <el-col :span="4">
+          <el-button icon="el-icon-document-add" circle type="primary" @click="collect">收藏</el-button>
+          <i>{{note.collect}}</i>
+        </el-col>
+        <el-col :span="4">
+          <el-button icon="el-icon-baseball" circle type="warning" @click="hate">踩</el-button>
+          <i>{{note.hate}}</i>
+        </el-col>
+        <el-col :span="4">
+          <el-button
+            icon="el-icon-fork-spoon"
+            circle
+            type="success"
+            @click="fork"
+            :disabled="!note.authority"
+          >分支</el-button>
+          <i>{{note.fork}}</i>
+        </el-col>
+        <el-col :span="4">
+          <el-button icon="el-icon-goods" circle type="primary" @click="mindMap">装入</el-button>
         </el-col>
       </el-row>
+      <el-dialog title="选择将笔记加入思维导图索引中" :visible.sync="dialogVisible" width="80%">
+        <el-cascader-panel
+          :options="options"
+          :props="{ checkStrictly: true}"
+          clearable
+          @change="handleChoose"
+          ref="opt"
+          v-model="path"
+        ></el-cascader-panel>
+        <el-button type="primary" @click="handleMindMap">确认</el-button>
+      </el-dialog>
+      <el-drawer title="笔记结构导图" :visible.sync="drawer" direction="rtl" size="80%">
+        <vue2-org-tree
+          name="test"
+          :data="titleTree"
+          :horizontal="true"
+          :collapsable="true"
+          label-class-name="bg-white"
+          :render-content="renderContent"
+          @on-expand="onExpand"
+        />
+      </el-drawer>
     </el-main>
-    <el-footer>
-       <el-row>
-        <el-col :span="8">
-          <el-button icon="el-icon-thumb" circle type="success">点赞</el-button>
-        </el-col>
-         <el-col :span="8">
-          <el-button icon="el-icon-baseball" circle type="warning">踩</el-button>
-        </el-col>
-         <el-col :span="8">
-          <el-button icon="el-icon-document-add" circle type="primary">收藏</el-button>
-        </el-col>
-      </el-row>
-    </el-footer>
   </el-container>
 </template>
 
 <script>
+import {
+  getRequest,
+  postParamRequest,
+  postJsonRequest
+} from "../../utils/request";
 export default {
-    name: 'note',
-    data() {
-        return {
-          note: {
-              noteId: 4,
-              description: "SpringBoot教程",
-              authorName: "Onion",
-              authority: true,
-              forkFrom: "75",
-              star: 100,
-              hate: 5,
-              collect: 84,
-              view: 1329,
-              fork: 2,
-              content: "### hello",
-              profileUrl: "https://avatars2.githubusercontent.com/u/33611404?s=400&v=4",
-              tag: "微服务"
-          },
-        }
+  name: "note",
+  data() {
+    return {
+      note: {},
+      author: {},
+      drawer: false,
+      titleTree: {},
+      dialogVisible: false,
+      path: "",
+      options: []
+    };
+  },
+  mounted() {
+    let noteId = this.$route.query.noteId;
+    this.refreshNote(noteId);
+  },
+  methods: {
+    handleMindMap() {
+      postJsonRequest("/noteApi/user/mindMapNote", {
+        noteId: this.note.noteId,
+        tag: this.path,
+        description: this.note.description
+      }).then(response => {});
     },
-    mounted() {
-    },
-    methods: {
-      goBack(){
-          this.$router.push('/recommend')
-      },
-      chatWithAuthor() {
-          this.$router.push('/chat')
-      },
-      fork() {
-          this.$router.push({path:'/edit',query:{content: this.note.content, forkFrom: this.note.noteId}});
+    handleChoose() {
+      let data = this.$refs.opt.getCheckedNodes()[0];
+      if (data.value != data.label) {
+        alert("笔记节点");
       }
+    },
+    follow() {
+      postParamRequest("/graphApi/user/follow", {
+        followedEmail: this.note.authorEmail
+      }).then(response => {
+        if (response.data.code === 200) {
+          alert("关注成功");
+        }
+      });
+    },
+    refreshNote(noteId) {
+      getRequest("/noteApi/note/findOne", { noteId: noteId }).then(response => {
+        this.note.noteId = noteId;
+        let data = response.data.data;
+        this.note.description = data.description;
+        this.note.content = data.content;
+        this.note.tag = data.tag;
+        this.note.authority = data.authority;
+        this.note.authorEmail = data.authorEmail;
+        this.note.forkFrom = data.forkFrom;
+        this.titleTree = data.titleTree;
+        getRequest("/noteApi/user/findUser", {
+          email: this.note.authorEmail
+        }).then(response => {
+          let data = response.data.data;
+          this.author.username = data.username;
+          this.author.profileUrl = data.profileUrl;
+        });
+      });
+      getRequest("/noteApi/note/counter", { noteId: noteId }).then(response => {
+        let data = response.data.data;
+        this.note.star = data.star;
+        this.note.hate = data.hate;
+        this.note.collect = data.collect;
+        this.note.view = data.view;
+        this.note.fork = data.fork;
+      });
+    },
+    goBack() {
+      this.$router.push(-1);
+    },
+    chatWithAuthor() {
+      this.$router.push("/chat");
+    },
+    fork() {
+      this.$router.push({
+        path: "/edit",
+        query: { content: this.note.content, forkFrom: this.note.noteId }
+      });
+    },
+    star() {
+      if (localStorage.getItem(this.note.noteId + "star") !== null) {
+        alert("你已经点赞过");
+        return false;
+      }
+      postParamRequest("/noteApi/note/starOrHate", {
+        type: "star",
+        noteId: this.note.noteId
+      }).then(response => {
+        if (response.data.code === 200) {
+          this.note.star++;
+          localStorage.setItem(this.note.noteId + "star", "star");
+        }
+      });
+    },
+    hate() {
+      if (localStorage.getItem(this.note.noteId + "hate") !== null) {
+        alert("你已经踩过");
+        return false;
+      }
+      postParamRequest("/noteApi/note/starOrHate", {
+        type: "hate",
+        noteId: this.note.noteId
+      }).then(response => {
+        if (response.data.code === 200) {
+          this.note.hate++;
+          localStorage.setItem(this.note.noteId + "hate", "hate");
+        }
+      });
+    },
+    collect() {
+      postJsonRequest("/noteApi/user/collectNote", {
+        noteId: this.note.noteId,
+        description: this.note.description,
+        tag: this.note.tag.split(',')
+      }).then(response => {
+        console.log(response);
+      });
+    },
+    mindMap() {
+      this.dialogVisible = true;
+      getRequest("/noteApi/user/getMindMap").then(response => {
+        this.options = response.data.data;
+      });
+    },
+    viewOriginal() {
+      this.refreshNote(this.note.forkFrom);
+    },
+    viewTree() {
+      this.drawer = true;
+    },
+    renderContent(h, data) {
+      return data.label;
+    },
+    onExpand(e, data) {
+      if ("expand" in data) {
+        data.expand = !data.expand;
+        if (!data.expand && data.children) {
+          this.collapse(data.children);
+        }
+      } else {
+        this.$set(data, "expand", true);
+      }
+    },
+    collapse(list) {
+      var _this = this;
+      list.forEach(function(child) {
+        if (child.expand) {
+          child.expand = false;
+        }
+        child.children && _this.collapse(child.children);
+      });
     }
-}
+  }
+};
 </script>
 
 <style>
-
+.item {
+  margin-top: 10px;
+  margin-right: 40px;
+}
 </style>

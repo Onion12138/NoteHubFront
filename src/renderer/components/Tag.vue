@@ -49,14 +49,14 @@
                 <p>关键词: {{ scope.row.keywords }}</p>
                 <p>摘要: {{ scope.row.summary }}</p>
                 <div slot="reference" class="name-wrapper">
-                  <el-tag size="medium">{{ scope.row.description }}</el-tag>
+                  <el-link type="primary" @click="handleViewNote(scope.$index,scope.row)">{{ scope.row.description }}</el-link>
                 </div>
               </el-popover>
             </template>
           </el-table-column>
           <el-table-column label="操作">
             <template slot-scope="scope">
-              <el-button size="mini" @click="handleViewTree(scope.$index, scope.row)">查看笔记结构</el-button>
+              <el-button size="primary" @click="handleViewTree(scope.$index, scope.row)">笔记结构</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -148,6 +148,9 @@ export default {
     handleViewTree(index, row) {
       this.drawer = true;
       this.titleTree = this.noteTable[index].titleTree;
+    },
+    handleViewNote(index, row) {
+      this.$router.push({path:"/note",query:{noteId:row.id}})
     },
     handleCurrentChange(val) {
       getRequest("/noteApi/note/findByTag", {

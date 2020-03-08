@@ -34,8 +34,8 @@ export default {
         content: "",
         description: "",
         tag: "",
-        authorEmail: "",
         authority: true,
+        forkFrom: ""
       },
       tags: []
     };
@@ -44,8 +44,10 @@ export default {
     if(this.$route.query.forkFrom !== undefined) {
       this.note.content = this.$route.query.content;
       this.note.forkFrom = this.$route.query.forkFrom;
+    }else{
+      this.note.forkFrom = ""
     }
-    getRequest("/noteApi/user/findTag").then(response => {
+    getRequest("/noteApi/note/findTag").then(response => {
       console.log(response);
       this.tags = response.data.data;
     });

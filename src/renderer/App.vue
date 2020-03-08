@@ -23,9 +23,7 @@
               <el-menu-item index="2-1">
                 <router-link to='/search'>搜索</router-link>
                </el-menu-item>
-               <el-menu-item index="2-2">
-                <router-link to='/note'>笔记</router-link>
-               </el-menu-item>
+              
                 <el-menu-item index="2-3">
                 <router-link to='/edit'>发布</router-link>
                </el-menu-item>

@@ -1,5 +1,5 @@
 <template>
-  <el-cascader placeholder="可搜索" :options="options" filterable>
+  <el-cascader placeholder="可搜索" :options="options" filterable @change="handleChoose" ref="opt">
     <template slot-scope="{ node, data }">
       <span>{{ data.label }}</span>
       <span v-if="!node.isLeaf">({{ data.children.length }})</span>
@@ -10,9 +10,8 @@
 import { getRequest } from "../../utils/request";
 export default {
   methods: {
-    handleChange() {
-      console.log(this.$refs.opt.getCheckedNodes()[0].data.id);
-      this.$router.push("/note");
+    handleChoose() {
+      this.$router.push({path:"/note",query:{noteId:this.$refs.opt.getCheckedNodes()[0].data.value}});
     }
   },
   data() {
@@ -21,7 +20,10 @@ export default {
     };
   },
   mounted() {
-    this.options = JSON.parse(localStorage.getItem("mindmap"));
+    getRequest("/noteApi/user/getCollection").then(response=>{
+      this.options = []
+      this.options.push(response.data.data)
+    })
   }
 };
 </script>
