@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import { getRequest, postEncodedRequest } from "../../utils/request";
+import { getRequest, postEncodedRequest } from "@/utils/request";
 export default {
   name: "edit",
   data() {
@@ -41,11 +41,11 @@ export default {
     };
   },
   mounted() {
-    if(this.$route.query.forkFrom !== undefined) {
+    if (this.$route.query.forkFrom !== undefined) {
       this.note.content = this.$route.query.content;
       this.note.forkFrom = this.$route.query.forkFrom;
-    }else{
-      this.note.forkFrom = ""
+    } else {
+      this.note.forkFrom = "";
     }
     getRequest("/noteApi/note/findTag").then(response => {
       console.log(response);

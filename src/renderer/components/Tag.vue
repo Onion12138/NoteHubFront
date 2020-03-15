@@ -49,7 +49,10 @@
                 <p>关键词: {{ scope.row.keywords }}</p>
                 <p>摘要: {{ scope.row.summary }}</p>
                 <div slot="reference" class="name-wrapper">
-                  <el-link type="primary" @click="handleViewNote(scope.$index,scope.row)">{{ scope.row.description }}</el-link>
+                  <el-link
+                    type="primary"
+                    @click="handleViewNote(scope.$index,scope.row)"
+                  >{{ scope.row.description }}</el-link>
                 </div>
               </el-popover>
             </template>
@@ -84,8 +87,8 @@
   </el-container>
 </template>
 <script>
-import { getRequest } from "../../utils/request"
-import Vue from "vue"
+import { getRequest } from "@/utils/request";
+import Vue from "vue";
 Vue.filter("formatDateTime", function formatDateTime(value) {
   let date = new Date(value);
   let year = date.getFullYear();
@@ -100,7 +103,7 @@ Vue.filter("formatDateTime", function formatDateTime(value) {
     day = "0" + day;
   }
   return year + "-" + month + "-" + day + " " + hours + ":" + minutes;
-})
+});
 export default {
   data() {
     return {
@@ -150,7 +153,7 @@ export default {
       this.titleTree = this.noteTable[index].titleTree;
     },
     handleViewNote(index, row) {
-      this.$router.push({path:"/note",query:{noteId:row.id}})
+      this.$router.push({ path: "/note", query: { noteId: row.id } });
     },
     handleCurrentChange(val) {
       getRequest("/noteApi/note/findByTag", {

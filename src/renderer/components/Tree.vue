@@ -1,19 +1,13 @@
 <template>
   <div class="text-center">
-    <el-dialog
-    :visible.sync="dialogVisible"
-    :before-close="handleCancel"
-    title="输入根节点名称"
-    >
-    <el-input v-model="root"></el-input>
-    <el-button type="primary" @click="handleConfirm">确认</el-button>
-</el-dialog>
-    <el-dialog
-     :visible.sync="operate"
-    >
-       <el-input v-model="input" placeholder="输入子节点名称"></el-input>
-       <el-button type="primary" @click="handleSubmmit">添加</el-button>
-       <el-button type="warning" @click="handleDelete">删除子节点</el-button>
+    <el-dialog :visible.sync="dialogVisible" :before-close="handleCancel" title="输入根节点名称">
+      <el-input v-model="root"></el-input>
+      <el-button type="primary" @click="handleConfirm">确认</el-button>
+    </el-dialog>
+    <el-dialog :visible.sync="operate">
+      <el-input v-model="input" placeholder="输入子节点名称"></el-input>
+      <el-button type="primary" @click="handleSubmmit">添加</el-button>
+      <el-button type="warning" @click="handleDelete">删除子节点</el-button>
     </el-dialog>
     <vue2-org-tree
       name="test"
@@ -25,13 +19,13 @@
       @on-expand="onExpand"
       @on-node-click="onNodeClick"
     />
-    <el-button type="warning" @click="handleCancel"> 取消</el-button>
-    <el-button type="primary" @click="handlePublish"> 发布</el-button>
+    <el-button type="warning" @click="handleCancel">取消</el-button>
+    <el-button type="primary" @click="handlePublish">发布</el-button>
   </div>
 </template>
 
 <script>
-import {postJsonRequest} from '../../utils/request'
+import { postJsonRequest } from "@/utils/request";
 export default {
   data() {
     return {
@@ -52,37 +46,41 @@ export default {
     };
   },
   mounted() {
-    this.dialogVisible = true
+    this.dialogVisible = true;
   },
   methods: {
     handleCancel() {
-      this.$router.replace('/home')
+      this.$router.replace("/home");
     },
     handleDelete() {
-      this.currentNode.children = []
-      this.operate = false
-      this.input = ""
+      this.currentNode.children = [];
+      this.operate = false;
+      this.input = "";
     },
     handleSubmmit() {
-      this.currentNode.children.push({label:this.input,value:this.input,children:[]})
-      this.operate = false
-      this.input = ""
+      this.currentNode.children.push({
+        label: this.input,
+        value: this.input,
+        children: []
+      });
+      this.operate = false;
+      this.input = "";
     },
-    handlePublish(){
-      postJsonRequest("/noteApi/user/addMindMap",this.data).then(response=>{
-        console.log(response.data.data)
-      })
+    handlePublish() {
+      postJsonRequest("/noteApi/user/addMindMap", this.data).then(response => {
+        console.log(response.data.data);
+      });
     },
-    handleConfirm(){
-      this.data.label = this.root
-      this.data.value = this.root
-      this.dialogVisible = false
+    handleConfirm() {
+      this.data.label = this.root;
+      this.data.value = this.root;
+      this.dialogVisible = false;
     },
     renderContent(h, data) {
       return data.label;
     },
     onExpand(e, data) {
-      data.flag = true
+      data.flag = true;
       if ("expand" in data) {
         data.expand = !data.expand;
         if (!data.expand && data.children) {
@@ -93,12 +91,12 @@ export default {
       }
     },
     onNodeClick(e, data) {
-      if(data.flag){
-        data.flag = false
-        return false
+      if (data.flag) {
+        data.flag = false;
+        return false;
       }
-      this.currentNode = data
-      this.operate = true
+      this.currentNode = data;
+      this.operate = true;
     },
     collapse(list) {
       var _this = this;

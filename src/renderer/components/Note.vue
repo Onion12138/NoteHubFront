@@ -124,11 +124,7 @@
 </template>
 
 <script>
-import {
-  getRequest,
-  postParamRequest,
-  postJsonRequest
-} from "../../utils/request";
+import { getRequest, postParamRequest, postJsonRequest } from "@/utils/request";
 export default {
   name: "note",
   data() {
@@ -243,7 +239,7 @@ export default {
       postJsonRequest("/noteApi/user/collectNote", {
         noteId: this.note.noteId,
         description: this.note.description,
-        tag: this.note.tag.split(',')
+        tag: this.note.tag.split(",")
       }).then(response => {
         console.log(response);
       });

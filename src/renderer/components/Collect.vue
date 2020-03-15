@@ -7,11 +7,14 @@
   </el-cascader>
 </template>
 <script>
-import { getRequest } from "../../utils/request";
+import { getRequest } from "@/utils/request";
 export default {
   methods: {
     handleChoose() {
-      this.$router.push({path:"/note",query:{noteId:this.$refs.opt.getCheckedNodes()[0].data.value}});
+      this.$router.push({
+        path: "/note",
+        query: { noteId: this.$refs.opt.getCheckedNodes()[0].data.value }
+      });
     }
   },
   data() {
@@ -20,10 +23,10 @@ export default {
     };
   },
   mounted() {
-    getRequest("/noteApi/user/getCollection").then(response=>{
-      this.options = []
-      this.options.push(response.data.data)
-    })
+    getRequest("/noteApi/user/getCollection").then(response => {
+      this.options = [];
+      this.options.push(response.data.data);
+    });
   }
 };
 </script>

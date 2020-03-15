@@ -8,7 +8,7 @@
   </el-container>
 </template>
 <script>
-import { getRequest } from "../../utils/request";
+import { getRequest } from "@/utils/request";
 export default {
   name: "search",
   data() {

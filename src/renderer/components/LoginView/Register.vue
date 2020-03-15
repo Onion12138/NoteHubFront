@@ -1,6 +1,6 @@
 <template>
-<el-container>
-  <el-main>
+  <el-container>
+    <el-main>
       <el-form
         :model="registerForm"
         :rules="rules"
@@ -9,11 +9,16 @@
         label-position="left"
         label-width="20px"
       >
-      <el-form-item label="选择Tag" prop="chooseTags">
-        <el-checkbox-group v-model="registerForm.chooseTags">
-        <el-checkbox-button v-for="tag in tags" :label="tag.name" :key="tag._id">{{tag.name}}</el-checkbox-button>
-      </el-checkbox-group>
-      </el-form-item>
+        <el-form-item label="选择Tag" prop="chooseTags">
+          <el-checkbox-group v-model="registerForm.chooseTags">
+            <el-checkbox-button
+              v-for="tag in tags"
+              :label="tag.name"
+              :key="tag._id"
+              >{{ tag.name }}</el-checkbox-button
+            >
+          </el-checkbox-group>
+        </el-form-item>
         <el-form-item prop="email">
           <el-input
             type="text"
@@ -66,24 +71,28 @@
               icon="el-icon-s-promotion"
               @click="sendCode('registerForm')"
               :disabled="this.timer != null"
-            >{{msg}}</el-button>
+              >{{ msg }}</el-button
+            >
           </el-input>
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" @click="submitForm('registerForm')" style="width: 70%">注册</el-button>
+          <el-button
+            type="primary"
+            @click="submitForm('registerForm')"
+            style="width: 70%"
+            >注册</el-button
+          >
         </el-form-item>
       </el-form>
-  </el-main>
+    </el-main>
   </el-container>
 </template>
 
 <script>
-import {
-  postParamRequest,
-  postJsonRequest,
-  getRequest
-} from "../../utils/request";
+import { postParamRequest, postJsonRequest, getRequest } from "@/utils/request";
+import "@/utils/mock";
+
 export default {
   name: "register",
   data() {
@@ -113,7 +122,7 @@ export default {
         password: "",
         checkPassword: "",
         code: "",
-        chooseTags: [],
+        chooseTags: []
       },
       rules: {
         email: [
@@ -142,7 +151,7 @@ export default {
           }
         ],
         chooseTags: [
-          {required: true, message:"请选择至少一个Tag", trigger: "blur"}
+          { required: true, message: "请选择至少一个Tag", trigger: "blur" }
         ]
       },
       fileList: [],
@@ -185,7 +194,8 @@ export default {
         {
           _id: 8,
           name: "编程语言"
-        },{
+        },
+        {
           _id: 9,
           name: "其他"
         }
@@ -200,44 +210,44 @@ export default {
           postJsonRequest("/noteApi/user/register", this.registerForm).then(
             response => {
               if (response.data.code === 200) {
-                alert("注册成功")
-                this.$router.replace("/login")
+                alert("注册成功");
+                this.$router.replace("/login");
               } else {
-                alert(response.data.message)
+                alert(response.data.message);
               }
             }
-          )
+          );
         } else {
-          alert("请正确填写注册信息")
-          return false
+          alert("请正确填写注册信息");
+          return false;
         }
-      })
+      });
     },
     sendCode(formName) {
       this.$refs[formName].validateField("email", msg => {
         if (msg === "") {
-          this.count = 30
+          this.count = 30;
           this.timer = setInterval(() => {
             if (this.count > 0) {
-              this.count--
-              this.msg = this.count + "s后再次发送"
+              this.count--;
+              this.msg = this.count + "s后再次发送";
             } else {
-              clearInterval(this.timer)
-              this.timer = null
-              this.msg = "发送验证码"
+              clearInterval(this.timer);
+              this.timer = null;
+              this.msg = "发送验证码";
             }
           }, 1000);
           getRequest("/noteApi/user/sendCode", {
             email: this.registerForm.email
           }).then(response => {
             if (response.data.code === 200) {
-              alert("发送成功")
+              alert("发送成功");
             } else {
-              alert("发送失败")
+              alert("发送失败");
             }
-          })
+          });
         } else {
-          alert("请正确填写邮箱")
+          alert("请正确填写邮箱");
         }
       });
     }
