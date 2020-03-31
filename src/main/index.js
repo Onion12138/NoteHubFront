@@ -11,6 +11,7 @@ if (process.env.NODE_ENV !== "development") {
 }
 
 let mainWindow;
+
 const winURL =
   process.env.NODE_ENV === "development"
     ? `http://localhost:9080`
@@ -20,9 +21,10 @@ function createWindow() {
   /**
    * Initial window options
    */
+  //应用内主界面
   mainWindow = new BrowserWindow({
-    height: 600,
-    width: 400,
+    height: 800,
+    width: 600,
     title: "notehub",
     useContentSize: true,
     autoHideMenuBar: true,
@@ -57,5 +59,11 @@ app.on("activate", () => {
 });
 
 ipcMain.on("login", () => {
-  mainWindow.setSize(1000, 600);
+  console.log("login");
+  mainWindow.setSize(1000, 650);
+});
+
+ipcMain.on("logout", () => {
+  console.log("logout");
+  mainWindow.setSize(600, 800);
 });

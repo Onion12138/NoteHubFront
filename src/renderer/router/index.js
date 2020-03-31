@@ -9,10 +9,11 @@ import Help from "@/components/Help";
 import Note from "@/components/Note";
 import Chat from "@/components/Chat";
 import Message from "@/components/Message";
-import Register from "@/components/LoginView/Register";
-import Login from "@/components/LoginView/Login";
+import Register from "@/components/LandingView/Register";
+import Login from "@/components/LandingView/Login";
 import Tree from "@/components/Tree";
 import Collect from "@/components/Collect";
+import MindMap from "@/components/MindMap";
 import Tag from "@/components/Tag";
 Vue.use(VueRouter);
 
@@ -22,101 +23,121 @@ const router = new VueRouter({
     {
       path: "/",
       name: "layout",
-      component: () => import("@/components/Layout/Layout.vue"),
-      meta: { requireAuth: true }
+      redirect: "/home",
+      component: () => import("@/components/Layout/BasicLayout.vue"),
+      children: [
+        {
+          path: "home",
+          name: "home",
+          component: Home,
+          meta: { requiresAuth: true }
+        },
+        {
+          path: "tag",
+          name: "tag",
+          component: Tag
+        },
+        {
+          path: "tree",
+          name: "tree",
+          component: Tree
+        },
+        {
+          path: "collect",
+          name: "collect",
+          component: Collect
+        },
+        {
+          path: "note",
+          name: "note",
+          component: Note
+        },
+        {
+          path: "search",
+          name: "search",
+          component: Search
+        },
+        {
+          path: "mine",
+          name: "mine",
+          component: Mine
+        },
+        {
+          path: "edit",
+          name: "edit",
+          component: Edit
+        },
+        {
+          path: "recommend",
+          name: "recommend",
+          component: Recommend
+        },
+        {
+          path: "message",
+          name: "message",
+          component: Message
+        },
+        {
+          path: "help",
+          name: "help",
+          component: Help
+        },
+        {
+          path: "chat",
+          name: "chat",
+          component: Chat
+        },
+        {
+          path: "mindMap",
+          name: "mindMap",
+          component: MindMap
+        }
+      ]
     },
     {
-      path: "/home",
-      name: "home",
-      component: Home
-    },
-    {
-      path: "/tag",
-      name: "tag",
-      component: Tag
-    },
-    {
-      path: "/tree",
-      name: "tree",
-      component: Tree
-    },
-    {
-      path: "/collect",
-      name: "collect",
-      component: Collect
-    },
-    {
-      path: "/register",
-      name: "register",
-      component: Register
-    },
-    {
-      path: "/login",
-      name: "login",
-      component: Login
-    },
-    {
-      path: "/note",
-      name: "note",
-      component: Note
-    },
-    {
-      path: "/search",
-      name: "search",
-      component: Search
-    },
-    {
-      path: "/mine",
-      name: "mine",
-      component: Mine
-    },
-    {
-      path: "/edit",
-      name: "edit",
-      component: Edit
-    },
-    {
-      path: "/recommend",
-      name: "recommend",
-      component: Recommend
-    },
-    {
-      path: "/message",
-      name: "message",
-      component: Message
-    },
-    {
-      path: "/help",
-      name: "help",
-      component: Help
-    },
-    {
-      path: "/chat",
-      name: "chat",
-      component: Chat
+      path: "/auth",
+      name: "langding-layout",
+      redirect: "/auth/login",
+      component: () => import("@/components/Layout/LandingLayout.vue"),
+      children: [
+        {
+          path: "register",
+          name: "register",
+          component: Register
+        },
+        {
+          path: "login",
+          name: "login",
+          component: Login
+        }
+      ]
     },
     {
       path: "*",
-      redirect: "/"
+      redirect: "/home"
     }
   ]
 });
 
+//未登录，跳转到登陆页
 router.beforeEach((to, from, next) => {
-  if (localStorage.getItem("token")) {
-    // 在已登陆的情况下访问登陆页会重定向到首页
-    if (to.path === "/login") {
-      next({ path: "/" });
-    } else {
-      next({ path: to.path || "/" });
-    }
-  } else {
-    // 没有登陆则访问任何页面都重定向到登陆页
-    if (to.path === "/login") {
+  console.log(to);
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    if (localStorage.getItem("token")) {
       next();
     } else {
-      next(`/login?redirect=${to.path}`);
+      if (to.path === "/auth/login" || to.path === "/auth/register") {
+        next();
+      } else {
+        console.log("no token");
+        next({
+          path: "/auth/login",
+          query: { redirect: to.fullPath }
+        });
+      }
     }
+  } else {
+    next();
   }
 });
 

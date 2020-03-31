@@ -1,0 +1,300 @@
+<template>
+  <div>
+    <div id="mountNode"></div>
+    <el-row type="flex" justify="end">
+      <el-col :span="4">
+        <el-button type="warning">取消</el-button>
+      </el-col>
+      <el-col :span="4">
+        <el-button type="primary" @click="handleSubmit">发布</el-button>
+      </el-col>
+    </el-row>
+    <el-dialog title="新增节点" :visible.sync="addNodeVisible">
+      <el-input v-model="nodeName" placeholder="输入子节点名称"></el-input>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="addNodeVisible = false">取 消</el-button>
+        <el-button type="primary" @click="handleAddNode">确 定</el-button>
+      </div>
+    </el-dialog>
+  </div>
+</template>
+<script>
+import G6 from "@antv/g6";
+import insertCss from "insert-css";
+import { getRequest, postJsonRequest } from "@/utils/request";
+import "@/utils/mock";
+
+insertCss(
+  `
+ #mountNode {
+  position: relative;
+  min-height: 500px;
+}
+
+#contextMenu {
+  position: absolute;
+  list-style-type: none;
+  padding: 10px 8px;
+  left: -150px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid #e2e2e2;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #333;
+}
+#contextMenu li {
+  cursor: pointer;
+  list-style-type: none;
+  list-style: none;
+  margin-left: 0px;
+  margin-top: 2px;
+}
+#contextMenu li:hover {
+  color: #409eff;
+}
+  `
+);
+
+export default {
+  name: "minimap",
+  mounted() {
+    this.initG6();
+  },
+  data() {
+    return {
+      addNodeVisible: false,
+      nodeName: "",
+      nodeNumber: 0,
+      graph: {},
+      currentNode: {}
+    };
+  },
+  methods: {
+    handleSubmit() {
+      console.log(this.graph.save());
+    },
+    handleAddNode() {
+      if (this.nodeName) {
+        this.graph.addChild(
+          { id: String(this.nodeNumber++), name: this.nodeName, children: [] },
+          this.currentNode.defaultCfg.id
+        );
+        console.log(this.currentNode);
+      }
+      this.addNodeVisible = false;
+    },
+    handleDeleteNode() {
+      this.graph.removeChild(this.currentNode.defaultCfg.id);
+    },
+    openAddNodeDialog() {
+      this.addNodeVisible = true;
+    },
+    initG6() {
+      const COLLAPSE_ICON = function COLLAPSE_ICON(x, y, r) {
+        return [
+          ["M", x, y],
+          ["a", r, r, 0, 1, 0, r * 2, 0],
+          ["a", r, r, 0, 1, 0, -r * 2, 0],
+          ["M", x + 2, y],
+          ["L", x + 2 * r - 2, y]
+        ];
+      };
+      const EXPAND_ICON = function EXPAND_ICON(x, y, r) {
+        return [
+          ["M", x, y],
+          ["a", r, r, 0, 1, 0, r * 2, 0],
+          ["a", r, r, 0, 1, 0, -r * 2, 0],
+          ["M", x + 2, y],
+          ["L", x + 2 * r - 2, y],
+          ["M", x + r, y - r + 2],
+          ["L", x + r, y + r - 2]
+        ];
+      };
+      G6.registerNode(
+        "tree-node",
+        {
+          drawShape: function drawShape(cfg, group) {
+            const rect = group.addShape("rect", {
+              attrs: {
+                fill: "#fff",
+                stroke: "#666"
+              },
+              name: "rect-shape"
+            });
+            const content = cfg.name.replace(/(.{19})/g, "$1\n");
+            const text = group.addShape("text", {
+              attrs: {
+                text: content,
+                x: 0,
+                y: 0,
+                textAlign: "left",
+                textBaseline: "middle",
+                fill: "#666"
+              },
+              name: "rect-shape"
+            });
+            const bbox = text.getBBox();
+            const hasChildren = cfg.children && cfg.children.length > 0;
+            if (hasChildren) {
+              group.addShape("marker", {
+                attrs: {
+                  x: bbox.maxX + 6,
+                  y: bbox.minX + bbox.height / 2 - 6,
+                  r: 6,
+                  symbol: COLLAPSE_ICON,
+                  stroke: "#666",
+                  lineWidth: 2
+                },
+                name: "collapse-icon"
+              });
+            }
+            rect.attr({
+              x: bbox.minX - 4,
+              y: bbox.minY - 6,
+              width: bbox.width + (hasChildren ? 26 : 8),
+              height: bbox.height + 12
+            });
+            return rect;
+          }
+        },
+        "single-node"
+      );
+
+      const conextMenuContainer = document.createElement("ul");
+      conextMenuContainer.id = "contextMenu";
+
+      // create li
+      const firstLi = document.createElement("li");
+      firstLi.innerText = "增加子节点";
+      firstLi.onclick = this.openAddNodeDialog;
+      conextMenuContainer.appendChild(firstLi);
+
+      const lastLi = document.createElement("li");
+      lastLi.innerText = "删除节点";
+      lastLi.onclick = this.handleDeleteNode;
+      conextMenuContainer.appendChild(lastLi);
+      document.getElementById("mountNode").appendChild(conextMenuContainer);
+
+      const width = document.getElementById("mountNode").scrollWidth;
+      const height = document.getElementById("mountNode").scrollHeight || 500;
+
+      // const minimap = new G6.Minimap({
+      //   size: [100, 100],
+      //   className: "minimap",
+      //   type: "delegate"
+      // });
+      // const grid = new G6.Grid();
+
+      const graph = new G6.TreeGraph({
+        container: "mountNode",
+        width,
+        height,
+        // plugins: [minimap, grid],
+        modes: {
+          default: [
+            {
+              type: "collapse-expand",
+              onChange: function onChange(item, collapsed) {
+                const data = item.getModel();
+                const icon = item
+                  .getContainer()
+                  .find(element => element.get("name") === "collapse-icon");
+                if (collapsed) {
+                  icon.attr("symbol", EXPAND_ICON);
+                } else {
+                  icon.attr("symbol", COLLAPSE_ICON);
+                }
+                data.collapsed = collapsed;
+                return true;
+              }
+            },
+            "drag-canvas",
+            "zoom-canvas"
+          ]
+        },
+        defaultNode: {
+          type: "tree-node",
+          anchorPoints: [
+            [0, 0.5],
+            [1, 0.5]
+          ]
+        },
+        defaultEdge: {
+          type: "cubic-horizontal",
+          style: {
+            stroke: "#A3B1BF"
+          }
+        },
+        layout: {
+          type: "compactBox",
+          direction: "LR",
+          getId: function getId(d) {
+            return d.id;
+          },
+          getHeight: function getHeight() {
+            return 16;
+          },
+          getWidth: function getWidth() {
+            return 16;
+          },
+          getVGap: function getVGap() {
+            return 20;
+          },
+          getHGap: function getHGap() {
+            return 80;
+          }
+        }
+      });
+
+      this.graph = graph;
+
+      graph.on("node:contextmenu", evt => {
+        evt.preventDefault();
+        evt.stopPropagation();
+        this.currentNode = evt.item;
+        conextMenuContainer.style.left = `${evt.canvasX + 20}px`;
+        conextMenuContainer.style.top = `${evt.canvasY}px`;
+      });
+
+      graph.on("node:click", evt => {
+        this.currentNode = evt.item;
+        const children = evt.item.getModel().children;
+        if (!children || !children.length) {
+          alert("ffff");
+        }
+      });
+
+      graph.on("node:mouseleave", () => {
+        conextMenuContainer.style.left = "-150px";
+      });
+      const that = this;
+
+      // fetch(
+      //   "https://gw.alipayobjects.com/os/antvdemo/assets/data/modeling-methods.json"
+      // )
+      //   .then(res => res.json())
+      //   .then(data => {
+      //     G6.Util.traverseTree(data, function(item) {
+      //       // item.id = item.name;
+      //       item.id = String(that.nodeNumber++);
+      //     });
+      //     graph.data(data);
+      //     graph.render();
+      //     graph.fitView();
+      //   });
+      getRequest("/noteApi/user/getMindMap").then(response => {
+        let data = response.data.data;
+        G6.Util.traverseTree(data, function(item) {
+          // item.id = item.name;
+          item.id = String(that.nodeNumber++);
+          // item.name = item.label || "默认值";
+        });
+        graph.data(data);
+        graph.render();
+        graph.fitView();
+      });
+    }
+  }
+};
+</script>
+

@@ -123,5 +123,6 @@ export {
   postParamRequest,
   postEncodedRequest,
   postJsonRequest,
+  uploadFileRequest,
   axios
 };
