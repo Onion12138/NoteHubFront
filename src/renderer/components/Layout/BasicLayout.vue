@@ -1,7 +1,7 @@
 <template>
   <div id="basic-layout">
-    <el-container style="min-height:600px">
-      <el-aside style="min-height:600px">
+    <el-container style="min-height:660px">
+      <el-aside style="min-height:660px">
         <el-menu :default-openeds="['1']" background-color="#fff">
           <el-submenu index="1">
             <template slot="title">
@@ -48,16 +48,13 @@
               <router-link to="/collect">收藏</router-link>
             </el-menu-item>
             <el-menu-item index="4-6">
-              <router-link to="/tree">自定义导图</router-link>
-            </el-menu-item>
-            <el-menu-item index="4-6">
               <router-link to="/MindMap">导图</router-link>
             </el-menu-item>
           </el-submenu>
         </el-menu>
       </el-aside>
 
-      <el-container class="main" :style="{ height: winHeight + 'px' }">
+      <el-container class="main" style="min-height:660px">
         <el-header>
           <el-row type="flex" justify="space-between" class="row-header">
             <el-col :span="20">
@@ -72,8 +69,14 @@
                   <i class="el-icon-s-tools el-icon--right"></i>
                 </span>
                 <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item>未读消息</el-dropdown-item>
-                  <el-dropdown-item>系统消息</el-dropdown-item>
+                  <el-dropdown-item>
+                    未读消息
+                    <el-badge class="mark" :value="5" />
+                  </el-dropdown-item>
+                  <el-dropdown-item>
+                    系统消息
+                    <el-badge class="mark" :value="12" />
+                  </el-dropdown-item>
                   <el-dropdown-item command="logout">退出登录</el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>

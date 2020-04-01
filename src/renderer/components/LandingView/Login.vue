@@ -75,17 +75,12 @@ export default {
             response => {
               let data = response.data.data;
               alert("欢迎您:" + data.username);
-              (async () => {
-                localStorage.setItem("profileUrl", data.profileUrl);
-                localStorage.setItem("username", data.username);
-                localStorage.setItem("email", data.email);
-                localStorage.setItem(
-                  "mindmap",
-                  JSON.stringify(data.mindMapList)
-                );
-                await localStorage.setItem("token", data.token);
-                this.$router.push({ path: "/home" });
-              })();
+              localStorage.setItem("profileUrl", data.profileUrl);
+              localStorage.setItem("username", data.username);
+              localStorage.setItem("email", data.email);
+              localStorage.setItem("mindmap", JSON.stringify(data.mindMapList));
+              localStorage.setItem("token", data.token);
+              this.$router.push({ path: "/home" });
             }
           );
         } else {

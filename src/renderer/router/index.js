@@ -35,62 +35,74 @@ const router = new VueRouter({
         {
           path: "tag",
           name: "tag",
-          component: Tag
+          component: Tag,
+          meta: { requiresAuth: true }
         },
         {
           path: "tree",
           name: "tree",
-          component: Tree
+          component: Tree,
+          meta: { requiresAuth: true }
         },
         {
           path: "collect",
           name: "collect",
-          component: Collect
+          component: Collect,
+          meta: { requiresAuth: true }
         },
         {
-          path: "note",
+          path: "note/:noteId",
           name: "note",
-          component: Note
+          component: Note,
+          meta: { requiresAuth: true }
         },
         {
           path: "search",
           name: "search",
-          component: Search
+          component: Search,
+          meta: { requiresAuth: true }
         },
         {
           path: "mine",
           name: "mine",
-          component: Mine
+          component: Mine,
+          meta: { requiresAuth: true }
         },
         {
           path: "edit",
           name: "edit",
-          component: Edit
+          component: Edit,
+          meta: { requiresAuth: true }
         },
         {
           path: "recommend",
           name: "recommend",
-          component: Recommend
+          component: Recommend,
+          meta: { requiresAuth: true }
         },
         {
           path: "message",
           name: "message",
-          component: Message
+          component: Message,
+          meta: { requiresAuth: true }
         },
         {
           path: "help",
           name: "help",
-          component: Help
+          component: Help,
+          meta: { requiresAuth: true }
         },
         {
           path: "chat",
           name: "chat",
-          component: Chat
+          component: Chat,
+          meta: { requiresAuth: true }
         },
         {
           path: "mindMap",
           name: "mindMap",
-          component: MindMap
+          component: MindMap,
+          meta: { requiresAuth: true }
         }
       ]
     },

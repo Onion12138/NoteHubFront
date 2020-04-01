@@ -31,6 +31,7 @@ export default {
   data() {
     return {
       note: {
+        id: "",
         content: "",
         description: "",
         tag: "",
@@ -41,11 +42,10 @@ export default {
     };
   },
   mounted() {
-    if (this.$route.query.forkFrom !== undefined) {
-      this.note.content = this.$route.query.content;
-      this.note.forkFrom = this.$route.query.forkFrom;
-    } else {
-      this.note.forkFrom = "";
+    console.log(this.$route);
+    if (this.$route.query) {
+      this.note.content = this.$route.query.content || this.note.content;
+      this.note.forkFrom = this.$route.query.forkFrom || "";
     }
     getRequest("/noteApi/note/findTag").then(response => {
       console.log(response);
@@ -56,7 +56,8 @@ export default {
     handleChange() {},
     publish() {
       postEncodedRequest("/noteApi/note/publish", this.note).then(response => {
-        console.log(response.data.data);
+        const data = response.data.data;
+        this.note = Object.assign({}, this.note, { id: data });
       });
     }
   }

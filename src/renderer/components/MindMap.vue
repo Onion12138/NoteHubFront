@@ -72,11 +72,42 @@ export default {
   methods: {
     handleSubmit() {
       console.log(this.graph.save());
+      //深拷贝获取精简树
+      const keyMap = ["lable", "value", "children"];
+      const deepCopy = function(obj) {
+        if (typeof obj !== "object") return;
+        var newObj;
+        if (obj instanceof Array) {
+          newObj = [];
+          for (let key in obj) {
+            newObj[key] = deepCopy(obj[key]);
+          }
+        } else {
+          newObj = {};
+          for (let key in obj) {
+            if (obj.hasOwnProperty(key) && keyMap.includes(key)) {
+              newObj[key] =
+                typeof obj[key] === "object" ? deepCopy(obj[key]) : obj[key];
+            }
+          }
+        }
+        return newObj;
+      };
+      const data = deepCopy(this.graph.save());
+      console.log(data);
+      postJsonRequest("/noteApi/user/addMindMap", data).then(response =>
+        console.log(response.data)
+      );
     },
     handleAddNode() {
       if (this.nodeName) {
         this.graph.addChild(
-          { id: String(this.nodeNumber++), name: this.nodeName, children: [] },
+          {
+            id: String(this.nodeNumber++),
+            label: this.nodeName,
+            value: this.nodeName,
+            children: []
+          },
           this.currentNode.defaultCfg.id
         );
         console.log(this.currentNode);
@@ -110,55 +141,51 @@ export default {
           ["L", x + r, y + r - 2]
         ];
       };
-      G6.registerNode(
-        "tree-node",
-        {
-          drawShape: function drawShape(cfg, group) {
-            const rect = group.addShape("rect", {
+      G6.registerNode("tree-node", {
+        drawShape: function drawShape(cfg, group) {
+          const rect = group.addShape("rect", {
+            attrs: {
+              fill: "#fff",
+              stroke: "#666"
+            },
+            name: "rect-shape"
+          });
+          const content = cfg.name.replace(/(.{19})/g, "$1\n");
+          const text = group.addShape("text", {
+            attrs: {
+              text: content,
+              x: 0,
+              y: 0,
+              textAlign: "left",
+              textBaseline: "middle",
+              fill: "#666"
+            },
+            name: "rect-shape"
+          });
+          const bbox = text.getBBox();
+          const hasChildren = cfg.children && cfg.children.length > 0;
+          if (hasChildren) {
+            group.addShape("marker", {
               attrs: {
-                fill: "#fff",
-                stroke: "#666"
+                x: bbox.maxX + 6,
+                y: bbox.minX + bbox.height / 2 - 6,
+                r: 6,
+                symbol: COLLAPSE_ICON,
+                stroke: "#666",
+                lineWidth: 2
               },
-              name: "rect-shape"
+              name: "collapse-icon"
             });
-            const content = cfg.name.replace(/(.{19})/g, "$1\n");
-            const text = group.addShape("text", {
-              attrs: {
-                text: content,
-                x: 0,
-                y: 0,
-                textAlign: "left",
-                textBaseline: "middle",
-                fill: "#666"
-              },
-              name: "rect-shape"
-            });
-            const bbox = text.getBBox();
-            const hasChildren = cfg.children && cfg.children.length > 0;
-            if (hasChildren) {
-              group.addShape("marker", {
-                attrs: {
-                  x: bbox.maxX + 6,
-                  y: bbox.minX + bbox.height / 2 - 6,
-                  r: 6,
-                  symbol: COLLAPSE_ICON,
-                  stroke: "#666",
-                  lineWidth: 2
-                },
-                name: "collapse-icon"
-              });
-            }
-            rect.attr({
-              x: bbox.minX - 4,
-              y: bbox.minY - 6,
-              width: bbox.width + (hasChildren ? 26 : 8),
-              height: bbox.height + 12
-            });
-            return rect;
           }
-        },
-        "single-node"
-      );
+          rect.attr({
+            x: bbox.minX - 4,
+            y: bbox.minY - 6,
+            width: bbox.width + (hasChildren ? 26 : 8),
+            height: bbox.height + 12
+          });
+          return rect;
+        }
+      });
 
       const conextMenuContainer = document.createElement("ul");
       conextMenuContainer.id = "contextMenu";
@@ -258,9 +285,11 @@ export default {
 
       graph.on("node:click", evt => {
         this.currentNode = evt.item;
-        const children = evt.item.getModel().children;
-        if (!children || !children.length) {
-          alert("ffff");
+        const model = evt.item.getModel();
+        const children = model.children;
+        const noteId = model.value;
+        if (model.value !== model.label) {
+          this.$router.push({ path: `/note/${noteId}` });
         }
       });
 
@@ -282,12 +311,14 @@ export default {
       //     graph.render();
       //     graph.fitView();
       //   });
+
+      //前端重新维护id
       getRequest("/noteApi/user/getMindMap").then(response => {
-        let data = response.data.data;
+        let data = response.data.data[0];
         G6.Util.traverseTree(data, function(item) {
           // item.id = item.name;
           item.id = String(that.nodeNumber++);
-          // item.name = item.label || "默认值";
+          item.name = item.label;
         });
         graph.data(data);
         graph.render();

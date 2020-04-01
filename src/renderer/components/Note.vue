@@ -4,12 +4,18 @@
       <el-button type="text" icon="el-icon-back" @click="goBack" style="padding-bottom: 0px;">返回</el-button>
     </el-header>
     <el-main>
-      <div style="text-align:center">{{note.description}}</div>
+      <div class="note-description">{{note.description}}</div>
       <!-- <div> -->
       <el-row>
         <el-col :span="6">
-          <el-avatar :src="author.profileUrl"></el-avatar>
-          <span>{{author.username}}</span>
+          <el-row>
+            <el-col>
+              <el-avatar :src="author.profileUrl"></el-avatar>
+            </el-col>
+            <el-col>
+              <span style="color:#777">{{author.username}}</span>
+            </el-col>
+          </el-row>
         </el-col>
         <el-col :span="6">
           <el-tag>{{note.tag}}</el-tag>
@@ -66,35 +72,65 @@
       <el-divider>
         <i class="el-icon-notebook-1"></i>
       </el-divider>
-      <el-row :gutter="18">
+      <el-row :gutter="18" class="button-group">
         <el-col :span="4">
-          <el-button icon="el-icon-view" circle type="text" disabled>浏览</el-button>
-          <i>{{note.view}}</i>
+          <el-row>
+            <el-col>
+              <el-button icon="el-icon-view" circle type="text" disabled></el-button>
+            </el-col>
+            <el-col>
+              <i>{{note.view}}</i>
+            </el-col>
+          </el-row>
         </el-col>
         <el-col :span="4">
-          <el-button icon="el-icon-thumb" circle type="success" @click="star">点赞</el-button>
-          <i>{{note.star}}</i>
+          <el-row>
+            <el-col>
+              <el-button icon="el-icon-thumb" circle type="text" @click="star"></el-button>
+            </el-col>
+            <el-col>
+              <i>{{note.star}}</i>
+            </el-col>
+          </el-row>
         </el-col>
         <el-col :span="4">
-          <el-button icon="el-icon-document-add" circle type="primary" @click="collect">收藏</el-button>
-          <i>{{note.collect}}</i>
+          <el-row>
+            <el-col>
+              <el-button icon="el-icon-document-add" circle type="text" @click="collect"></el-button>
+            </el-col>
+            <el-col>
+              <i>{{note.collect}}</i>
+            </el-col>
+          </el-row>
         </el-col>
         <el-col :span="4">
-          <el-button icon="el-icon-baseball" circle type="warning" @click="hate">踩</el-button>
-          <i>{{note.hate}}</i>
+          <el-row>
+            <el-col>
+              <el-button icon="el-icon-delete" circle type="text" @click="hate"></el-button>
+            </el-col>
+            <el-col>
+              <i>{{note.hate}}</i>
+            </el-col>
+          </el-row>
         </el-col>
         <el-col :span="4">
-          <el-button
-            icon="el-icon-fork-spoon"
-            circle
-            type="success"
-            @click="fork"
-            :disabled="!note.authority"
-          >分支</el-button>
-          <i>{{note.fork}}</i>
+          <el-row>
+            <el-col>
+              <el-button
+                icon="el-icon-fork-spoon"
+                circle
+                type="text"
+                @click="fork"
+                :disabled="!note.authority"
+              ></el-button>
+            </el-col>
+            <el-col>
+              <i>{{note.fork}}</i>
+            </el-col>
+          </el-row>
         </el-col>
         <el-col :span="4">
-          <el-button icon="el-icon-goods" circle type="primary" @click="mindMap">装入</el-button>
+          <el-button icon="el-icon-goods" circle type="text" @click="mindMap"></el-button>
         </el-col>
       </el-row>
       <el-dialog title="选择将笔记加入思维导图索引中" :visible.sync="dialogVisible" width="80%">
@@ -125,12 +161,17 @@
 
 <script>
 import { getRequest, postParamRequest, postJsonRequest } from "@/utils/request";
+import "@/utils/mock";
+
 export default {
   name: "note",
   data() {
     return {
       note: {},
-      author: {},
+      author: {
+        username: "",
+        profileUrl: ""
+      },
       drawer: false,
       titleTree: {},
       dialogVisible: false,
@@ -141,6 +182,7 @@ export default {
   mounted() {
     let noteId = this.$route.query.noteId;
     this.refreshNote(noteId);
+    console.log("4");
   },
   methods: {
     handleMindMap() {
@@ -149,6 +191,7 @@ export default {
         tag: this.path,
         description: this.note.description
       }).then(response => {});
+      this.dialogVisible = false;
     },
     handleChoose() {
       let data = this.$refs.opt.getCheckedNodes()[0];
@@ -176,12 +219,14 @@ export default {
         this.note.authorEmail = data.authorEmail;
         this.note.forkFrom = data.forkFrom;
         this.titleTree = data.titleTree;
+        console.log("1");
         getRequest("/noteApi/user/findUser", {
           email: this.note.authorEmail
         }).then(response => {
           let data = response.data.data;
           this.author.username = data.username;
           this.author.profileUrl = data.profileUrl;
+          console.log("2");
         });
       });
       getRequest("/noteApi/note/counter", { noteId: noteId }).then(response => {
@@ -191,10 +236,11 @@ export default {
         this.note.collect = data.collect;
         this.note.view = data.view;
         this.note.fork = data.fork;
+        console.log("3");
       });
     },
     goBack() {
-      this.$router.push(-1);
+      this.$router.go(-1);
     },
     chatWithAuthor() {
       this.$router.push("/chat");
@@ -215,7 +261,9 @@ export default {
         noteId: this.note.noteId
       }).then(response => {
         if (response.data.code === 200) {
-          this.note.star++;
+          this.note = Object.assign({}, this.note, {
+            star: parseInt(this.note.star) + 1
+          });
           localStorage.setItem(this.note.noteId + "star", "star");
         }
       });
@@ -230,7 +278,9 @@ export default {
         noteId: this.note.noteId
       }).then(response => {
         if (response.data.code === 200) {
-          this.note.hate++;
+          this.note = Object.assign({}, this.note, {
+            hate: parseInt(this.note.hate) + 1
+          });
           localStorage.setItem(this.note.noteId + "hate", "hate");
         }
       });
@@ -282,9 +332,19 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
+.note-description {
+  text-align: center;
+  font-size: 1.5rem;
+  margin-bottom: 0.8rem;
+}
 .item {
   margin-top: 10px;
   margin-right: 40px;
+}
+.button-group {
+  color: #aaa;
+  font-size: 0.8rem;
+  text-align: center;
 }
 </style>
