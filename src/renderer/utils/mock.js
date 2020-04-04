@@ -127,7 +127,7 @@ mock.onPost("/noteApi/user/mindMapNote").reply(200, {
   ...response,
 });
 
-mock.onGet("/noteApi/user/getMindMap", { params: { num: "0" } }).reply(200, {
+mock.onGet("/noteApi/user/getCollection").reply(200, {
   ...response,
   data: {
     children: [

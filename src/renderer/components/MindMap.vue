@@ -4,12 +4,9 @@
       <el-button type="text" icon="el-icon-back" @click="goBack" style="padding-bottom: 0px;">返回</el-button>
     </el-header>
     <div id="mountNode"></div>
-    <el-row type="flex" justify="end">
+    <el-row type="flex" justify="end" v-if="!isDefault">
       <el-col :span="4">
-        <el-button type="warning">取消</el-button>
-      </el-col>
-      <el-col :span="4">
-        <el-button type="primary" @click="handleSubmit">发布</el-button>
+        <el-button type="primary" @click="handleSubmit">保存</el-button>
       </el-col>
     </el-row>
     <el-dialog title="新增节点" :visible.sync="addNodeVisible">
@@ -62,6 +59,7 @@ export default {
   name: "minimap",
   mounted() {
     this.initG6();
+    console.log(this.$route);
   },
   data() {
     return {
@@ -69,7 +67,9 @@ export default {
       nodeName: "",
       nodeNumber: 0,
       graph: {},
-      currentNode: {}
+      currentNode: {},
+      isDefault: this.$route.query.isDefault || false,
+      mindMapId: this.$route.query.id || ""
     };
   },
   methods: {
@@ -79,9 +79,9 @@ export default {
     handleSubmit() {
       console.log(this.graph.save());
       //深拷贝获取精简树
-      const keyMap = ["lable", "value", "children"];
+      const keyMap = ["label", "value", "children"];
       const deepCopy = function(obj) {
-        if (typeof obj !== "object") return;
+        if (typeof obj !== "object" || !obj) return obj;
         var newObj;
         if (obj instanceof Array) {
           newObj = [];
@@ -112,7 +112,8 @@ export default {
             id: String(this.nodeNumber++),
             label: this.nodeName,
             value: this.nodeName,
-            children: []
+            children: [],
+            type: "tree-node"
           },
           this.currentNode.defaultCfg.id
         );
@@ -336,9 +337,11 @@ export default {
       //   });
 
       //前端重新维护id
-      getRequest("/noteApi/user/getMindMap", {
-        num: this.$route.params.mindMapId
-      }).then(response => {
+      const url = this.isDefault
+        ? "noteApi/user/getCollection"
+        : "noteApi/user/getMindMap";
+      const params = this.isDefault ? {} : { num: this.mindMapId };
+      getRequest(url, params).then(response => {
         let data = response.data.data[0] || response.data.data;
         G6.Util.traverseTree(data, function(item) {
           // item.id = item.name;

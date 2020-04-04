@@ -28,7 +28,7 @@
           @keyup.enter.native="handleFolderAdd"
         />
       </template>
-      <template slot-scope="scope" v-if="scope.row.id!=='0'">
+      <template slot-scope="scope" v-if="scope.$index!==0">
         <el-button size="mini" @click.stop="handleEdit(scope.$index, scope.row)">编辑</el-button>
         <el-button size="mini" type="danger" @click.stop="handleDelete(scope.$index, scope.row)">删除</el-button>
       </template>
@@ -103,7 +103,15 @@ export default {
     },
     handleCurrentChange(val) {
       this.currentRow = val;
-      this.$router.push({ path: `/mindMap/${val.id}` });
+
+      if (val.id === "0") {
+        this.$router.push({
+          name: "mindMap",
+          query: { isDefault: true }
+        });
+      } else {
+        this.$router.push({ name: "mindMap", query: { id: val.id } });
+      }
     },
     handleEdit(index, row) {
       this.currentRow = row;

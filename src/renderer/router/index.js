@@ -30,81 +30,81 @@ const router = new VueRouter({
           path: "home",
           name: "home",
           component: Home,
-          meta: { requiresAuth: true }
+          meta: { requiresAuth: true },
         },
         {
           path: "tag",
           name: "tag",
           component: Tag,
-          meta: { requiresAuth: true }
+          meta: { requiresAuth: true },
         },
         {
           path: "tree",
           name: "tree",
           component: Tree,
-          meta: { requiresAuth: true }
+          meta: { requiresAuth: true },
         },
         {
           path: "note/:noteId",
           name: "note",
           component: Note,
-          meta: { requiresAuth: true }
+          meta: { requiresAuth: true },
         },
         {
           path: "search",
           name: "search",
           component: Search,
-          meta: { requiresAuth: true }
+          meta: { requiresAuth: true },
         },
         {
           path: "mine",
           name: "mine",
           component: Mine,
-          meta: { requiresAuth: true }
+          meta: { requiresAuth: true },
         },
         {
           path: "edit",
           name: "edit",
           component: Edit,
-          meta: { requiresAuth: true }
+          meta: { requiresAuth: true },
         },
         {
           path: "recommend",
           name: "recommend",
           component: Recommend,
-          meta: { requiresAuth: true }
+          meta: { requiresAuth: true },
         },
         {
           path: "message",
           name: "message",
           component: Message,
-          meta: { requiresAuth: true }
+          meta: { requiresAuth: true },
         },
         {
           path: "help",
           name: "help",
           component: Help,
-          meta: { requiresAuth: true }
+          meta: { requiresAuth: true },
         },
         {
           path: "chat",
           name: "chat",
           component: Chat,
-          meta: { requiresAuth: true }
+          meta: { requiresAuth: true },
         },
         {
           path: "folder",
           name: "folder",
           component: Folder,
-          mete: { requiresAuth: true }
+          mete: { requiresAuth: true },
         },
         {
-          path: "mindMap/:mindMapId",
+          path: "mindMap",
           name: "mindMap",
           component: MindMap,
-          meta: { requiresAuth: true }
-        }
-      ]
+          meta: { requiresAuth: true },
+        },
+      ],
     },
     {
       path: "/auth",
@@ -115,26 +115,26 @@ const router = new VueRouter({
         {
           path: "register",
           name: "register",
-          component: Register
+          component: Register,
         },
         {
           path: "login",
           name: "login",
-          component: Login
-        }
-      ]
+          component: Login,
+        },
+      ],
     },
     {
       path: "*",
-      redirect: "/home"
-    }
-  ]
+      redirect: "/home",
+    },
+  ],
 });
 
 //未登录，跳转到登陆页
 router.beforeEach((to, from, next) => {
   console.log(to);
-  if (to.matched.some(record => record.meta.requiresAuth)) {
+  if (to.matched.some((record) => record.meta.requiresAuth)) {
     if (localStorage.getItem("token")) {
       next();
     } else {
@@ -144,7 +144,7 @@ router.beforeEach((to, from, next) => {
         console.log("no token");
         next({
           path: "/auth/login",
-          query: { redirect: to.fullPath }
+          query: { redirect: to.fullPath },
         });
       }
     }

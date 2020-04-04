@@ -183,34 +183,84 @@ export default {
       titleTree: {},
       dialogVisible: false,
       path: "",
+      nodeNumber: 0,
+      currentNode: {},
       options: []
     };
   },
   mounted() {
     let noteId = this.$route.query.noteId;
     this.refreshNote(noteId);
-    console.log("4");
   },
-  filters: {
-    optionsFilter: function(options) {
-      return;
-    }
-  },
+
   methods: {
+    //深拷贝标识节点id,将笔记节点disabled
     handleMindMap() {
-      postJsonRequest("/noteApi/user/mindMapNote", {
-        noteId: this.note.noteId,
-        tag: this.path,
-        description: this.note.description
-      }).then(response => {});
+      //dfs根据父节点id添加子节点
+      console.log(this.options);
+      const addNode = function(child, parentId, arr) {
+        const helper = (child, parentId, arr, flag) => {
+          if (typeof arr !== "object" || !arr) return;
+          if (arr instanceof Array) {
+            for (let key in arr) {
+              if (flag && arr[key].id !== parentId)
+                helper(child, parentId, arr[key].children, flag);
+              else {
+                arr[key].children.push(child);
+                flag = false; //标记减枝
+                return;
+              }
+            }
+          }
+        };
+        helper(child, parentId, arr, true);
+      };
+      addNode(
+        {
+          id: this.nodeNumber++,
+          label: this.note.description,
+          value: this.note.noteId,
+          children: null,
+          disabled: true
+        },
+        this.currentNode.id,
+        this.options
+      );
+      console.log(this.options);
+      //深拷贝还原options
+      const keyMap = ["label", "value", "children"];
+      const deepCopy = function(obj) {
+        if (typeof obj !== "object" || !obj) return obj;
+        var newObj;
+        if (obj instanceof Array) {
+          newObj = [];
+          for (let key in obj) {
+            newObj[key] = deepCopy(obj[key]);
+          }
+        } else {
+          newObj = {};
+          for (let key in obj) {
+            if (obj.hasOwnProperty(key) && keyMap.includes(key)) {
+              newObj[key] =
+                typeof obj[key] === "object" ? deepCopy(obj[key]) : obj[key];
+            }
+          }
+        }
+        return newObj;
+      };
+      const data = deepCopy(this.options);
+      alert(JSON.stringify(data));
+      // postJsonRequest("/noteApi/user/mindMapNote", {
+      //   noteId: this.note.noteId,
+      //   tag: this.path,
+      //   description: this.note.description
+      // }).then(response => {});
       this.dialogVisible = false;
     },
     handleChoose() {
-      let data = this.$refs.opt.getCheckedNodes()[0];
-      console.log(data);
-      if (data.value != data.label) {
-        alert("笔记节点");
-      }
+      let node = this.$refs.opt.getCheckedNodes()[0];
+      this.currentNode = node.data;
+      console.log(node.data);
     },
     follow() {
       postParamRequest("/graphApi/user/follow", {
@@ -232,14 +282,12 @@ export default {
         this.note.authorEmail = data.authorEmail;
         this.note.forkFrom = data.forkFrom;
         this.titleTree = data.titleTree;
-        console.log("1");
         getRequest("/noteApi/user/findUser", {
           email: this.note.authorEmail
         }).then(response => {
           let data = response.data.data;
           this.author.username = data.username;
           this.author.profileUrl = data.profileUrl;
-          console.log("2");
         });
       });
       getRequest("/noteApi/note/counter", { noteId: noteId }).then(response => {
@@ -249,7 +297,6 @@ export default {
         this.note.collect = data.collect;
         this.note.view = data.view;
         this.note.fork = data.fork;
-        console.log("3");
       });
     },
     goBack() {
@@ -309,8 +356,30 @@ export default {
     },
     mindMap() {
       this.dialogVisible = true;
+      const deepCopy = obj => {
+        if (typeof obj !== "object" || !obj) return obj;
+        var newObj;
+        if (obj instanceof Array) {
+          newObj = [];
+          for (let key in obj) {
+            newObj[key] = deepCopy(obj[key]);
+          }
+        } else {
+          newObj = { id: this.nodeNumber++ };
+          if (obj.label !== obj.value) {
+            newObj["disabled"] = true;
+          }
+          for (let key in obj) {
+            if (obj.hasOwnProperty(key)) {
+              newObj[key] =
+                typeof obj[key] === "object" ? deepCopy(obj[key]) : obj[key];
+            }
+          }
+        }
+        return newObj;
+      };
       getRequest("/noteApi/user/getMindMap").then(response => {
-        this.options = response.data.data;
+        this.options = deepCopy(response.data.data);
       });
     },
     viewOriginal() {
