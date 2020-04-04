@@ -1,24 +1,12 @@
 <template>
   <el-container>
-    <el-aside width="100px">
-      <el-tabs
-        v-model="choice"
-        tab-position="left"
-        style="height: 100%; width: 100px"
-        :stretch="true"
-        @tab-click="handleChoose"
-      >
-        <el-tab-pane :key="item.id" v-for="item in tags" :label="item.value" :name="item.value"></el-tab-pane>
-      </el-tabs>
-    </el-aside>
-    <el-container>
-      <el-aside width="100px">
+    <el-tabs v-model="choice" tab-position="left" style="height: 100%" @tab-click="handleChoose">
+      <el-tab-pane :key="item.id" v-for="item in tags" :label="item.value" :name="item.value">
         <el-tabs
           v-model="subChoice"
           v-if="refresh"
           tab-position="left"
-          style="height: 100%; width: 100px"
-          :stretch="true"
+          style="height: 100%"
           @tab-click="handleSubChoose"
         >
           <el-tab-pane
@@ -28,62 +16,64 @@
             :name="item.value"
           ></el-tab-pane>
         </el-tabs>
-      </el-aside>
-      <el-main>
-        <el-table :data="noteTable" style="width: 100%">
-          <el-table-column label="发布于" width="150">
-            <template slot-scope="scope">
-              <i class="el-icon-time"></i>
-              <span style="margin-left: 10px">{{ scope.row.createTime | formatDateTime}}</span>
-            </template>
-          </el-table-column>
-          <el-table-column label="更新于" width="150">
-            <template slot-scope="scope">
-              <i class="el-icon-time"></i>
-              <span style="margin-left: 10px">{{ scope.row.updateTime | formatDateTime }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column label="描述" width="300">
-            <template slot-scope="scope">
-              <el-popover trigger="hover" placement="top">
-                <p>关键词: {{ scope.row.keywords }}</p>
-                <p>摘要: {{ scope.row.summary }}</p>
-                <div slot="reference" class="name-wrapper">
-                  <el-link
-                    type="primary"
-                    @click="handleViewNote(scope.$index,scope.row)"
-                  >{{ scope.row.description }}</el-link>
-                </div>
-              </el-popover>
-            </template>
-          </el-table-column>
-          <el-table-column label="操作">
-            <template slot-scope="scope">
-              <el-button size="primary" @click="handleViewTree(scope.$index, scope.row)">笔记结构</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-        <el-drawer title="笔记结构图" :visible.sync="drawer" :with-header="true" size="80%">
-          <vue2-org-tree
-            name="test"
-            :data="titleTree"
-            :horizontal="horizontal"
-            :collapsable="collapsable"
-            :label-class-name="labelClassName"
-            :render-content="renderContent"
-            @on-expand="onExpand"
-            @on-node-click="onNodeClick"
-          />
-        </el-drawer>
-        <el-pagination
-          @current-change="handleCurrentChange"
-          :current-page.sync="currentPage"
-          :page-size="10"
-          :page-count="total"
-          layout="prev, pager, next, jumper"
-        ></el-pagination>
-      </el-main>
-    </el-container>
+      </el-tab-pane>
+    </el-tabs>
+    <el-main>
+      <el-table :data="noteTable" style="width: 100%">
+        <el-table-column label="发布于">
+          <template slot-scope="scope">
+            <i class="el-icon-time"></i>
+            <span style="margin-left: 10px">{{ scope.row.createTime | formatDateTime}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="更新于">
+          <template slot-scope="scope">
+            <i class="el-icon-time"></i>
+            <span style="margin-left: 10px">{{ scope.row.updateTime | formatDateTime }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="描述">
+          <template slot-scope="scope">
+            <el-popover trigger="hover" placement="top">
+              <p>关键词: {{ scope.row.keywords }}</p>
+              <p>摘要: {{ scope.row.summary }}</p>
+              <div slot="reference" class="name-wrapper">
+                <el-link
+                  type="primary"
+                  @click="handleViewNote(scope.$index,scope.row)"
+                >{{ scope.row.description }}</el-link>
+              </div>
+            </el-popover>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作">
+          <template slot-scope="scope">
+            <el-button size="primary" @click="handleViewTree(scope.$index, scope.row)">笔记结构</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <el-pagination
+        @current-change="handleCurrentChange"
+        :current-page.sync="currentPage"
+        :page-size="10"
+        :page-count="total"
+        layout="prev, pager, next, jumper"
+      ></el-pagination>
+
+      <el-drawer title="笔记结构图" :visible.sync="drawer" :with-header="true" size="80%">
+        <vue2-org-tree
+          name="test"
+          :data="titleTree"
+          :horizontal="horizontal"
+          :collapsable="collapsable"
+          :label-class-name="labelClassName"
+          :render-content="renderContent"
+          @on-expand="onExpand"
+          @on-node-click="onNodeClick"
+        />
+      </el-drawer>
+    </el-main>
   </el-container>
 </template>
 <script>

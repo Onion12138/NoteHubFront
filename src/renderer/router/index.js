@@ -12,8 +12,8 @@ import Message from "@/components/Message";
 import Register from "@/components/LandingView/Register";
 import Login from "@/components/LandingView/Login";
 import Tree from "@/components/Tree";
-import Collect from "@/components/Collect";
 import MindMap from "@/components/MindMap";
+import Folder from "@/components/Folder";
 import Tag from "@/components/Tag";
 Vue.use(VueRouter);
 
@@ -42,12 +42,6 @@ const router = new VueRouter({
           path: "tree",
           name: "tree",
           component: Tree,
-          meta: { requiresAuth: true }
-        },
-        {
-          path: "collect",
-          name: "collect",
-          component: Collect,
           meta: { requiresAuth: true }
         },
         {
@@ -99,7 +93,13 @@ const router = new VueRouter({
           meta: { requiresAuth: true }
         },
         {
-          path: "mindMap",
+          path: "folder",
+          name: "folder",
+          component: Folder,
+          mete: { requiresAuth: true }
+        },
+        {
+          path: "mindMap/:mindMapId",
           name: "mindMap",
           component: MindMap,
           meta: { requiresAuth: true }

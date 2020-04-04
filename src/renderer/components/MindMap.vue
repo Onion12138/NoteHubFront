@@ -1,5 +1,8 @@
 <template>
   <div>
+    <el-header>
+      <el-button type="text" icon="el-icon-back" @click="goBack" style="padding-bottom: 0px;">返回</el-button>
+    </el-header>
     <div id="mountNode"></div>
     <el-row type="flex" justify="end">
       <el-col :span="4">
@@ -70,6 +73,9 @@ export default {
     };
   },
   methods: {
+    goBack() {
+      this.$router.go(-1);
+    },
     handleSubmit() {
       console.log(this.graph.save());
       //深拷贝获取精简树
@@ -150,7 +156,7 @@ export default {
             },
             name: "rect-shape"
           });
-          const content = cfg.name.replace(/(.{19})/g, "$1\n");
+          const content = cfg.label.replace(/(.{19})/g, "$1\n");
           const text = group.addShape("text", {
             attrs: {
               text: content,
@@ -240,7 +246,21 @@ export default {
           ]
         },
         defaultNode: {
-          type: "tree-node",
+          size: [125, 25],
+          style: {
+            stroke: "#adc6ff",
+            lineWidth: 2,
+            textOverflow: "ellipsis"
+          },
+          stateIcon: {
+            show: false
+          },
+          labelCfg: {
+            style: {
+              fontSize: 12,
+              textOverflow: "ellipsis"
+            }
+          },
           anchorPoints: [
             [0, 0.5],
             [1, 0.5]
@@ -279,8 +299,11 @@ export default {
         evt.preventDefault();
         evt.stopPropagation();
         this.currentNode = evt.item;
-        conextMenuContainer.style.left = `${evt.canvasX + 20}px`;
-        conextMenuContainer.style.top = `${evt.canvasY}px`;
+        const model = evt.item.getModel();
+        if (model.value === model.label) {
+          conextMenuContainer.style.left = `${evt.canvasX + 20}px`;
+          conextMenuContainer.style.top = `${evt.canvasY}px`;
+        }
       });
 
       graph.on("node:click", evt => {
@@ -313,12 +336,20 @@ export default {
       //   });
 
       //前端重新维护id
-      getRequest("/noteApi/user/getMindMap").then(response => {
-        let data = response.data.data[0];
+      getRequest("/noteApi/user/getMindMap", {
+        num: this.$route.params.mindMapId
+      }).then(response => {
+        let data = response.data.data[0] || response.data.data;
         G6.Util.traverseTree(data, function(item) {
           // item.id = item.name;
           item.id = String(that.nodeNumber++);
-          item.name = item.label;
+          const isNote = item.label !== item.value;
+          if (isNote) {
+            item.type = "modelRect";
+            if (item.label.length >= 8) item.label = item.label.slice(0, 8);
+          } else {
+            item.type = "tree-node";
+          }
         });
         graph.data(data);
         graph.render();

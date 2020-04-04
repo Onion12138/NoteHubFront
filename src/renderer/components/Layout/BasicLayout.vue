@@ -45,10 +45,7 @@
               <router-link to="/message">消息</router-link>
             </el-menu-item>
             <el-menu-item index="4-5">
-              <router-link to="/collect">收藏</router-link>
-            </el-menu-item>
-            <el-menu-item index="4-6">
-              <router-link to="/MindMap">导图</router-link>
+              <router-link to="/folder">收藏</router-link>
             </el-menu-item>
           </el-submenu>
         </el-menu>

@@ -76,7 +76,7 @@
         <el-col :span="4">
           <el-row>
             <el-col>
-              <el-button icon="el-icon-view" circle type="text" disabled></el-button>
+              <el-button icon="el-icon-view" circle type="text" disabled>浏览</el-button>
             </el-col>
             <el-col>
               <i>{{note.view}}</i>
@@ -86,7 +86,7 @@
         <el-col :span="4">
           <el-row>
             <el-col>
-              <el-button icon="el-icon-thumb" circle type="text" @click="star"></el-button>
+              <el-button icon="el-icon-thumb" circle type="text" @click="star">点赞</el-button>
             </el-col>
             <el-col>
               <i>{{note.star}}</i>
@@ -96,7 +96,7 @@
         <el-col :span="4">
           <el-row>
             <el-col>
-              <el-button icon="el-icon-document-add" circle type="text" @click="collect"></el-button>
+              <el-button icon="el-icon-document-add" circle type="text" @click="collect">收藏</el-button>
             </el-col>
             <el-col>
               <i>{{note.collect}}</i>
@@ -106,7 +106,7 @@
         <el-col :span="4">
           <el-row>
             <el-col>
-              <el-button icon="el-icon-delete" circle type="text" @click="hate"></el-button>
+              <el-button icon="el-icon-delete" circle type="text" @click="hate">踩</el-button>
             </el-col>
             <el-col>
               <i>{{note.hate}}</i>
@@ -122,7 +122,7 @@
                 type="text"
                 @click="fork"
                 :disabled="!note.authority"
-              ></el-button>
+              >分支</el-button>
             </el-col>
             <el-col>
               <i>{{note.fork}}</i>
@@ -130,7 +130,12 @@
           </el-row>
         </el-col>
         <el-col :span="4">
-          <el-button icon="el-icon-goods" circle type="text" @click="mindMap"></el-button>
+          <el-col>
+            <el-button icon="el-icon-goods" circle type="text" @click="mindMap"></el-button>
+          </el-col>
+          <el-col>
+            <i>{{note.collect}}</i>
+          </el-col>
         </el-col>
       </el-row>
       <el-dialog title="选择将笔记加入思维导图索引中" :visible.sync="dialogVisible" width="80%">
@@ -142,7 +147,9 @@
           ref="opt"
           v-model="path"
         ></el-cascader-panel>
-        <el-button type="primary" @click="handleMindMap">确认</el-button>
+        <el-row type="flex" justify="end">
+          <el-button type="primary" style="margin-top:0.5rem" @click="handleMindMap">确认</el-button>
+        </el-row>
       </el-dialog>
       <el-drawer title="笔记结构导图" :visible.sync="drawer" direction="rtl" size="80%">
         <vue2-org-tree
@@ -184,6 +191,11 @@ export default {
     this.refreshNote(noteId);
     console.log("4");
   },
+  filters: {
+    optionsFilter: function(options) {
+      return;
+    }
+  },
   methods: {
     handleMindMap() {
       postJsonRequest("/noteApi/user/mindMapNote", {
@@ -195,6 +207,7 @@ export default {
     },
     handleChoose() {
       let data = this.$refs.opt.getCheckedNodes()[0];
+      console.log(data);
       if (data.value != data.label) {
         alert("笔记节点");
       }
