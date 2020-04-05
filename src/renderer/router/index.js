@@ -14,6 +14,7 @@ import Login from "@/components/LandingView/Login";
 import Tree from "@/components/Tree";
 import MindMap from "@/components/MindMap";
 import Folder from "@/components/Folder";
+import Collect from "@/components/Collect";
 import Tag from "@/components/Tag";
 Vue.use(VueRouter);
 
@@ -96,6 +97,12 @@ const router = new VueRouter({
           path: "folder",
           name: "folder",
           component: Folder,
+          mete: { requiresAuth: true },
+        },
+        {
+          path: "collect",
+          name: "collect",
+          component: Collect,
           mete: { requiresAuth: true },
         },
         {

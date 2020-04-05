@@ -93,16 +93,7 @@
             </el-col>
           </el-row>
         </el-col>
-        <el-col :span="4">
-          <el-row>
-            <el-col>
-              <el-button icon="el-icon-document-add" circle type="text" @click="collect">收藏</el-button>
-            </el-col>
-            <el-col>
-              <i>{{note.collect}}</i>
-            </el-col>
-          </el-row>
-        </el-col>
+
         <el-col :span="4">
           <el-row>
             <el-col>
@@ -130,8 +121,18 @@
           </el-row>
         </el-col>
         <el-col :span="4">
+          <el-row>
+            <el-col>
+              <el-button icon="el-icon-document-add" circle type="text" @click="collect">收藏</el-button>
+            </el-col>
+            <el-col>
+              <i>{{note.collect}}</i>
+            </el-col>
+          </el-row>
+        </el-col>
+        <el-col :span="4">
           <el-col>
-            <el-button icon="el-icon-goods" circle type="text" @click="mindMap"></el-button>
+            <el-button icon="el-icon-goods" circle type="text" @click="mindMap">装入</el-button>
           </el-col>
           <el-col>
             <i>{{note.collect}}</i>
@@ -194,7 +195,6 @@ export default {
   },
 
   methods: {
-    //深拷贝标识节点id,将笔记节点disabled
     handleMindMap() {
       //dfs根据父节点id添加子节点
       console.log(this.options);
@@ -277,7 +277,7 @@ export default {
         let data = response.data.data;
         this.note.description = data.description;
         this.note.content = data.content;
-        this.note.tag = data.tag;
+        this.note.tag = data.tag.replace(",", "/");
         this.note.authority = data.authority;
         this.note.authorEmail = data.authorEmail;
         this.note.forkFrom = data.forkFrom;
@@ -356,6 +356,7 @@ export default {
     },
     mindMap() {
       this.dialogVisible = true;
+      //深拷贝标识节点id,将笔记节点disabled
       const deepCopy = obj => {
         if (typeof obj !== "object" || !obj) return obj;
         var newObj;

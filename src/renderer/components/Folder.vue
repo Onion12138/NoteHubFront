@@ -1,7 +1,7 @@
 <template>
   <el-table
     :data="tableData"
-    style="width: 100%"
+    style="width: 100%;cursor:pointer"
     ref="singleTable"
     highlight-current-row
     @current-change="handleCurrentChange"
@@ -29,7 +29,7 @@
         />
       </template>
       <template slot-scope="scope" v-if="scope.$index!==0">
-        <el-button size="mini" @click.stop="handleEdit(scope.$index, scope.row)">编辑</el-button>
+        <el-button size="mini" @click.stop="handleEdit(scope.$index, scope.row)">重命名</el-button>
         <el-button size="mini" type="danger" @click.stop="handleDelete(scope.$index, scope.row)">删除</el-button>
       </template>
     </el-table-column>

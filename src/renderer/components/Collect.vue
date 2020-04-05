@@ -11,9 +11,9 @@ import { getRequest } from "@/utils/request";
 export default {
   methods: {
     handleChoose() {
+      const noteId = this.$refs.opt.getCheckedNodes()[0].data.value;
       this.$router.push({
-        path: "/note",
-        query: { noteId: this.$refs.opt.getCheckedNodes()[0].data.value }
+        path: `/note/${noteId}`
       });
     }
   },
