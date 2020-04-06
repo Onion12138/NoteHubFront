@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="logoContainer">
     <img src="../../../static/logo.png" />
     <!-- <el-dialog
       title="请您先登录"
@@ -12,7 +12,10 @@
     </el-dialog>-->
   </div>
 </template>
-<style>
+<style scoped>
+.logoContainer {
+  margin: 0 auto;
+}
 .el-header {
   background-color: #b3c0d1;
   color: #333;

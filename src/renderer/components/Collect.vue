@@ -11,6 +11,8 @@ import { getRequest } from "@/utils/request";
 export default {
   methods: {
     handleChoose() {
+      console.log(this.$refs.opt);
+      console.log(this.$refs.opt.getCheckedNodes());
       const noteId = this.$refs.opt.getCheckedNodes()[0].data.value;
       this.$router.push({
         path: `/note/${noteId}`
@@ -23,7 +25,7 @@ export default {
     };
   },
   mounted() {
-    getRequest("/noteApi/user/getCollection").then(response => {
+    getRequest("/user/getCollection").then(response => {
       this.options = [];
       this.options.push(response.data.data);
     });

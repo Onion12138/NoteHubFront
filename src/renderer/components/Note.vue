@@ -123,7 +123,7 @@
         <el-col :span="4">
           <el-row>
             <el-col>
-              <el-button icon="el-icon-document-add" circle type="text" @click="collect">收藏</el-button>
+              <el-button icon="el-icon-folder-add" circle type="text" @click="collect">收藏</el-button>
             </el-col>
             <el-col>
               <i>{{note.collect}}</i>
@@ -169,7 +169,7 @@
 
 <script>
 import { getRequest, postParamRequest, postJsonRequest } from "@/utils/request";
-import "@/utils/mock";
+// import "@/utils/mock";
 
 export default {
   name: "note",
@@ -190,14 +190,19 @@ export default {
     };
   },
   mounted() {
-    let noteId = this.$route.query.noteId;
+    let noteId = this.$route.params.noteId;
+    console.log(noteId);
+    console.log(Object.prototype.toString.call(noteId));
     this.refreshNote(noteId);
   },
 
   methods: {
+    //todo:记录第一层index
     handleMindMap() {
       //dfs根据父节点id添加子节点
       console.log(this.options);
+      console.log(this.currentNode);
+
       const addNode = function(child, parentId, arr) {
         const helper = (child, parentId, arr, flag) => {
           if (typeof arr !== "object" || !arr) return;
@@ -220,10 +225,10 @@ export default {
           id: this.nodeNumber++,
           label: this.note.description,
           value: this.note.noteId,
-          children: null,
+          children: [],
           disabled: true
         },
-        this.currentNode.id,
+        this.currentNode.data.id,
         this.options
       );
       console.log(this.options);
@@ -248,19 +253,39 @@ export default {
         }
         return newObj;
       };
+
+      const getIndex = () => {
+        let node = this.currentNode;
+        while (node.parent) {
+          node = node.parent;
+        }
+        for (let key in this.options) {
+          if (this.options[key].id === node.data.id) {
+            return key;
+          }
+        }
+        return -1;
+      };
+      const mindMapId = getIndex();
       const data = deepCopy(this.options);
-      alert(JSON.stringify(data));
-      // postJsonRequest("/noteApi/user/mindMapNote", {
-      //   noteId: this.note.noteId,
-      //   tag: this.path,
-      //   description: this.note.description
-      // }).then(response => {});
+      console.log(Object.prototype.toString.call(mindMapId));
+
+      console.log(mindMapId);
+      postJsonRequest(
+        `/user/updateMindMap?index=${mindMapId}`,
+        data[mindMapId]
+      ).then(response => {
+        if (response.data.code === 200)
+          this.$notify.success({
+            title: "装入成功",
+            position: "bottom-right"
+          });
+      });
       this.dialogVisible = false;
     },
     handleChoose() {
-      let node = this.$refs.opt.getCheckedNodes()[0];
-      this.currentNode = node.data;
-      console.log(node.data);
+      this.currentNode = this.$refs.opt.getCheckedNodes()[0];
+      console.log(this.currentNode);
     },
     follow() {
       postParamRequest("/graphApi/user/follow", {
@@ -272,7 +297,7 @@ export default {
       });
     },
     refreshNote(noteId) {
-      getRequest("/noteApi/note/findOne", { noteId: noteId }).then(response => {
+      getRequest("/note/findOne", { noteId: noteId }).then(response => {
         this.note.noteId = noteId;
         let data = response.data.data;
         this.note.description = data.description;
@@ -282,7 +307,7 @@ export default {
         this.note.authorEmail = data.authorEmail;
         this.note.forkFrom = data.forkFrom;
         this.titleTree = data.titleTree;
-        getRequest("/noteApi/user/findUser", {
+        getRequest("/user/findUser", {
           email: this.note.authorEmail
         }).then(response => {
           let data = response.data.data;
@@ -290,7 +315,7 @@ export default {
           this.author.profileUrl = data.profileUrl;
         });
       });
-      getRequest("/noteApi/note/counter", { noteId: noteId }).then(response => {
+      getRequest("/note/counter", { noteId: noteId }).then(response => {
         let data = response.data.data;
         this.note.star = data.star;
         this.note.hate = data.hate;
@@ -313,11 +338,16 @@ export default {
     },
     star() {
       if (localStorage.getItem(this.note.noteId + "star") !== null) {
-        alert("你已经点赞过");
+        this.$notify.warning({
+          title: "警告",
+          position: "bottom-right",
+          message: "你已点赞过"
+        });
         return false;
       }
-      postParamRequest("/noteApi/note/starOrHate", {
+      postParamRequest("/note/starOrHate", {
         type: "star",
+        description: this.note.description,
         noteId: this.note.noteId
       }).then(response => {
         if (response.data.code === 200) {
@@ -330,12 +360,17 @@ export default {
     },
     hate() {
       if (localStorage.getItem(this.note.noteId + "hate") !== null) {
-        alert("你已经踩过");
+        this.$notify.warning({
+          title: "警告",
+          position: "bottom-right",
+          message: "你已经踩过"
+        });
         return false;
       }
-      postParamRequest("/noteApi/note/starOrHate", {
+      postParamRequest("/note/starOrHate", {
         type: "hate",
-        noteId: this.note.noteId
+        noteId: this.note.noteId,
+        description: this.note.description
       }).then(response => {
         if (response.data.code === 200) {
           this.note = Object.assign({}, this.note, {
@@ -345,15 +380,26 @@ export default {
         }
       });
     },
+    //收藏
     collect() {
-      postJsonRequest("/noteApi/user/collectNote", {
+      postJsonRequest("/user/collectNote", {
         noteId: this.note.noteId,
         description: this.note.description,
-        tag: this.note.tag.split(",")
+        tag: this.note.tag.split("/")
       }).then(response => {
-        console.log(response);
+        if (response.data.code === 200)
+          this.note = Object.assign({}, this.note, {
+            collect: parseInt(this.note.collect) + 1
+          });
+        this.$notify.success({
+          title: "成功",
+          dangerouslyUseHTMLString: true,
+          position: "bottom-right",
+          message: `<div>已添加<span style="color:#409EFF">${this.note.description}</span>至默认收藏夹</div>`
+        });
       });
     },
+    //装入
     mindMap() {
       this.dialogVisible = true;
       //深拷贝标识节点id,将笔记节点disabled
@@ -379,7 +425,7 @@ export default {
         }
         return newObj;
       };
-      getRequest("/noteApi/user/getMindMap").then(response => {
+      getRequest("/user/getMindMap").then(response => {
         this.options = deepCopy(response.data.data);
       });
     },
@@ -390,7 +436,8 @@ export default {
       this.drawer = true;
     },
     renderContent(h, data) {
-      return data.label;
+      data.value = data.value || "层级结构";
+      return data.value;
     },
     onExpand(e, data) {
       if ("expand" in data) {

@@ -34,9 +34,13 @@
         </el-table-column>
         <el-table-column label="描述">
           <template slot-scope="scope">
-            <el-popover trigger="hover" placement="top">
-              <p>关键词: {{ scope.row.keywords }}</p>
-              <p>摘要: {{ scope.row.summary }}</p>
+            <el-popover
+              trigger="hover"
+              title="摘要"
+              width="200"
+              placement="top"
+              :content="scope.row.summary|summaryFilter"
+            >
               <div slot="reference" class="name-wrapper">
                 <el-link
                   type="primary"
@@ -114,14 +118,19 @@ export default {
     };
   },
   mounted() {
-    getRequest("/noteApi/note/findTag").then(response => {
+    getRequest("/note/findTag").then(response => {
       this.tags = response.data.data;
     });
+  },
+  filters: {
+    summaryFilter(summary) {
+      return summary.slice(0, 100);
+    }
   },
   methods: {
     handleChoose() {
       this.subTags = this.tags.find(e => e.value === this.choice).children;
-      getRequest("/noteApi/note/findByTag", {
+      getRequest("/note/findByTag", {
         tag: this.choice,
         page: this.currentPage
       }).then(response => {
@@ -130,7 +139,7 @@ export default {
       });
     },
     handleSubChoose() {
-      getRequest("/noteApi/note/findByTag", {
+      getRequest("/note/findByTag", {
         tag: this.subChoice,
         page: this.currentPage
       }).then(response => {
@@ -143,10 +152,10 @@ export default {
       this.titleTree = this.noteTable[index].titleTree;
     },
     handleViewNote(index, row) {
-      this.$router.push({ path: "/note", query: { noteId: row.id } });
+      this.$router.push("/note/" + row.id);
     },
     handleCurrentChange(val) {
-      getRequest("/noteApi/note/findByTag", {
+      getRequest("/note/findByTag", {
         tag: this.choice,
         page: this.currentPage
       }).then(response => {
@@ -158,7 +167,8 @@ export default {
       console.log(data);
     },
     renderContent(h, data) {
-      return data.label;
+      data.value = data.value || "层级结构";
+      return data.value;
     },
     onExpand(e, data) {
       if ("expand" in data) {

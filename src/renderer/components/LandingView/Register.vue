@@ -91,7 +91,6 @@
 
 <script>
 import { postParamRequest, postJsonRequest, getRequest } from "@/utils/request";
-import "@/utils/mock";
 
 export default {
   name: "register",
@@ -207,7 +206,7 @@ export default {
       this.$refs[formName].validate(valid => {
         if (valid) {
           // this.registerForm.chooseTags = this.registerForm.chooseTags.join()
-          postJsonRequest("/noteApi/user/register", this.registerForm).then(
+          postJsonRequest("/user/register", this.registerForm).then(
             response => {
               if (response.data.code === 200) {
                 alert("注册成功");
@@ -237,7 +236,7 @@ export default {
               this.msg = "发送验证码";
             }
           }, 1000);
-          getRequest("/noteApi/user/sendCode", {
+          getRequest("/user/sendCode", {
             email: this.registerForm.email
           }).then(response => {
             if (response.data.code === 200) {

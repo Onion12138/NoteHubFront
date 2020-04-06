@@ -19,7 +19,13 @@
       </el-form-item>
 
       <el-form-item prop="password">
-        <el-input type="password" v-model="loginForm.password" auto-complete="off" placeholder="密码"></el-input>
+        <el-input
+          type="password"
+          v-model="loginForm.password"
+          @keyup.enter.native="submitClick('loginForm')"
+          auto-complete="off"
+          placeholder="密码"
+        ></el-input>
       </el-form-item>
       <el-form-item>
         <el-row type="flex" justify="space-between">
@@ -44,7 +50,7 @@
 <script>
 import { postJsonRequest } from "@/utils/request";
 import Logo from "@/../../static/logo.png";
-import "@/utils/mock";
+// import "@/utils/mock";
 
 export default {
   name: "login",
@@ -71,20 +77,18 @@ export default {
     submitClick: function(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          postJsonRequest("/noteApi/user/login", this.loginForm).then(
-            response => {
-              let data = response.data.data;
-              alert("欢迎您:" + data.username);
-              localStorage.setItem("profileUrl", data.profileUrl);
-              localStorage.setItem("username", data.username);
-              localStorage.setItem("email", data.email);
-              localStorage.setItem("mindmap", JSON.stringify(data.mindMapList));
-              localStorage.setItem("token", data.token);
-              this.$router.push({ path: "/home" });
-            }
-          );
+          postJsonRequest("/user/login", this.loginForm).then(response => {
+            let data = response.data.data;
+            this.$message.success(`欢迎您${data.username}`);
+            localStorage.setItem("profileUrl", data.profileUrl);
+            localStorage.setItem("username", data.username);
+            localStorage.setItem("email", data.email);
+            localStorage.setItem("mindmap", JSON.stringify(data.mindMapList));
+            localStorage.setItem("token", data.token);
+            this.$router.push({ path: "/home" });
+          });
         } else {
-          alert("请正确输入信息");
+          this.$message.warning("请正确输入信息");
         }
       });
     }

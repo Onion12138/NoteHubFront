@@ -1,4 +1,4 @@
-const createObjectURL = file => {
+const createObjectURL = (file) => {
   if (window.URL) {
     return window.URL.createObjectURL(file);
   } else {
@@ -7,7 +7,7 @@ const createObjectURL = file => {
 };
 
 //回收内存中的对象url
-const revokeObjectURL = file => {
+const revokeObjectURL = (file) => {
   if (window.URL) {
     return window.URL.revokeObjectURL(file);
   } else {

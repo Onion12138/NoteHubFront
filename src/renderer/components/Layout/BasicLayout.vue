@@ -3,12 +3,20 @@
     <el-container style="min-height:660px">
       <el-aside style="min-height:660px">
         <el-menu :default-openeds="['1']" background-color="#fff">
-          <el-submenu index="1">
+          <!-- <el-submenu index="1">
             <template slot="title">
               <i class="el-icon-location-outline"></i>起始页
             </template>
             <el-menu-item index="1-1">
               <router-link to="/home">欢迎页面</router-link>
+            </el-menu-item>
+          </el-submenu>-->
+          <el-submenu index="1">
+            <template slot="title">
+              <i class="el-icon-menu"></i>推荐
+            </template>
+            <el-menu-item index="1-1">
+              <router-link to="/recommend">推荐</router-link>
             </el-menu-item>
           </el-submenu>
           <el-submenu index="2">
@@ -28,30 +36,36 @@
           </el-submenu>
           <el-submenu index="3">
             <template slot="title">
-              <i class="el-icon-menu"></i>推荐
+              <i class="el-icon-user"></i>我的
             </template>
             <el-menu-item index="3-1">
-              <router-link to="/recommend">推荐</router-link>
+              <router-link to="/mine">资料</router-link>
             </el-menu-item>
+            <el-menu-item index="3-2">
+              <router-link to="/collect">收藏</router-link>
+            </el-menu-item>
+            <el-menu-item index="3-3">
+              <router-link to="/folder">导图</router-link>
+            </el-menu-item>
+            <el-menu-item index="3-4">
+              <router-link to="/myNotes">笔记</router-link>
+            </el-menu-item>
+            <!-- <el-menu-item index="4-4">
+              <router-link to="/message">消息</router-link>
+            </el-menu-item>-->
           </el-submenu>
           <el-submenu index="4">
             <template slot="title">
-              <i class="el-icon-user"></i>我的
+              <i class="el-icon-view"></i>记录
             </template>
+            <el-menu-item index="4-1">
+              <router-link to="/browseHistory">浏览记录</router-link>
+            </el-menu-item>
             <el-menu-item index="4-2">
-              <router-link to="/mine">资料</router-link>
+              <router-link to="/starHistory">点赞记录</router-link>
             </el-menu-item>
-            <el-menu-item index="4-4">
-              <router-link to="/message">消息</router-link>
-            </el-menu-item>
-            <el-menu-item index="4-5">
-              <router-link to="/collect">收藏</router-link>
-            </el-menu-item>
-            <el-menu-item index="4-6">
-              <router-link to="/folder">导图</router-link>
-            </el-menu-item>
-            <el-menu-item index="4-7">
-              <router-link to="/message">浏览记录</router-link>
+            <el-menu-item index="4-3">
+              <router-link to="/forkHistory">分支记录</router-link>
             </el-menu-item>
           </el-submenu>
         </el-menu>
@@ -94,8 +108,8 @@
 
 <script>
 import { uploadFileRequest } from "@/utils/request";
-import { createObjectURL, revokeObjectURL } from "@/utils/fileURL";
-import "@/utils/mock";
+import { createObjectURL, revokeObjectURL } from "@/utils/fileUtils";
+// import "@/utils/mock";
 
 export default {
   name: "basic-layout",
@@ -129,26 +143,23 @@ export default {
       this.profileUrl = url;
       revokeObjectURL(file);
       //模拟异步请求
-      const sleep = function(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-      };
-      await sleep(2000);
-      uploadFileRequest("/noteApi/user/uploadProfile", form).then(response => {
-        let data = response.data.data;
+      // const sleep = function(ms) {
+      //   return new Promise(resolve => setTimeout(resolve, ms));
+      // };
+      // await sleep(2000);
+      uploadFileRequest("/user/uploadProfile", form).then(response => {
+        const url = response.data.data;
         if (response.data.code === 200) {
-          localStorage.setItem("profileUrl", data.url);
-          this.profileUrl = data.url;
+          localStorage.setItem("profileUrl", url);
+          this.profileUrl = url;
         }
       });
     },
     handleCommand(command) {
       switch (command) {
         case "logout":
-          alert("logout");
-          (async () => {
-            await localStorage.clear();
-            this.$router.push("/auth/login");
-          })();
+          localStorage.clear();
+          this.$router.push("/auth/login");
           break;
         default:
           break;

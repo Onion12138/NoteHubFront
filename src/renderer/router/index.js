@@ -24,7 +24,7 @@ const router = new VueRouter({
     {
       path: "/",
       name: "layout",
-      redirect: "/home",
+      redirect: "/recommend",
       component: () => import("@/components/Layout/BasicLayout.vue"),
       children: [
         {
@@ -109,6 +109,30 @@ const router = new VueRouter({
           path: "mindMap",
           name: "mindMap",
           component: MindMap,
+          meta: { requiresAuth: true },
+        },
+        {
+          path: "myNotes",
+          name: "myNotes",
+          component: () => import("@/components/MyNotes.vue"),
+          meta: { requiresAuth: true },
+        },
+        {
+          path: "browseHistory",
+          name: "browseHistory",
+          component: () => import("@/components/HistoryView/BrowseHistory.vue"),
+          meta: { requiresAuth: true },
+        },
+        {
+          path: "forkHistory",
+          name: "forkHistory",
+          component: () => import("@/components/HistoryView/ForkHistory.vue"),
+          meta: { requiresAuth: true },
+        },
+        {
+          path: "starHistory",
+          name: "starHistory",
+          component: () => import("@/components/HistoryView/StarHistory.vue"),
           meta: { requiresAuth: true },
         },
       ],

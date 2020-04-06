@@ -4,13 +4,13 @@
       <el-button type="text" icon="el-icon-back" @click="goBack" style="padding-bottom: 0px;">返回</el-button>
     </el-header>
     <div id="mountNode"></div>
-    <el-row type="flex" justify="end" v-if="!isDefault">
+    <el-row type="flex" justify="end">
       <el-col :span="4">
         <el-button type="primary" @click="handleSubmit">保存</el-button>
       </el-col>
     </el-row>
     <el-dialog title="新增节点" :visible.sync="addNodeVisible">
-      <el-input v-model="nodeName" placeholder="输入子节点名称"></el-input>
+      <el-input v-model="nodeName" placeholder="输入子节点名称" @keyup.enter.native="handleAddNode"></el-input>
       <div slot="footer" class="dialog-footer">
         <el-button @click="addNodeVisible = false">取 消</el-button>
         <el-button type="primary" @click="handleAddNode">确 定</el-button>
@@ -22,7 +22,7 @@
 import G6 from "@antv/g6";
 import insertCss from "insert-css";
 import { getRequest, postJsonRequest } from "@/utils/request";
-import "@/utils/mock";
+// import "@/utils/mock";
 
 insertCss(
   `
@@ -66,10 +66,9 @@ export default {
       addNodeVisible: false,
       nodeName: "",
       nodeNumber: 0,
-      graph: {},
+      graph: {}, //包含导图数据
       currentNode: {},
-      isDefault: this.$route.query.isDefault || false,
-      mindMapId: this.$route.query.id || ""
+      mindMapId: this.$route.query.id
     };
   },
   methods: {
@@ -101,9 +100,16 @@ export default {
       };
       const data = deepCopy(this.graph.save());
       console.log(data);
-      postJsonRequest("/noteApi/user/addMindMap", data).then(response =>
-        console.log(response.data)
-      );
+      console.log(Object.prototype.toString.call(this.mindMapId));
+      postJsonRequest(`/user/updateMindMap?index=${this.mindMapId}`, {
+        ...data
+      }).then(response => {
+        if (response.data.code === 200)
+          this.$notify.success({
+            title: "保存成功",
+            position: "bottom-right"
+          });
+      });
     },
     handleAddNode() {
       if (this.nodeName) {
@@ -337,27 +343,22 @@ export default {
       //   });
 
       //前端重新维护id
-      const url = this.isDefault
-        ? "noteApi/user/getCollection"
-        : "noteApi/user/getMindMap";
-      const params = this.isDefault ? {} : { num: this.mindMapId };
-      getRequest(url, params).then(response => {
-        let data = response.data.data[0] || response.data.data;
-        G6.Util.traverseTree(data, function(item) {
-          // item.id = item.name;
-          item.id = String(that.nodeNumber++);
-          const isNote = item.label !== item.value;
-          if (isNote) {
-            item.type = "modelRect";
-            if (item.label.length >= 8) item.label = item.label.slice(0, 8);
-          } else {
-            item.type = "tree-node";
-          }
-        });
-        graph.data(data);
-        graph.render();
-        graph.fitView();
+
+      const data = JSON.parse(this.$route.query.mindMap);
+      G6.Util.traverseTree(data, function(item) {
+        // item.id = item.name;
+        item.id = String(that.nodeNumber++);
+        const isNote = item.label !== item.value;
+        if (isNote) {
+          item.type = "modelRect";
+          if (item.label.length >= 8) item.label = item.label.slice(0, 8);
+        } else {
+          item.type = "tree-node";
+        }
       });
+      graph.data(data);
+      graph.render();
+      graph.fitView();
     }
   }
 };

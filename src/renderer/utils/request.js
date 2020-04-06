@@ -2,39 +2,45 @@ import axios from "axios";
 import { Message } from "element-ui";
 import qs from "qs";
 
-axios.defaults.baseURL = "http://localhost:8080/notehub";
+const baseURL = ["http://182.61.23.125:9000/", "http://182.61.23.125:9001/"];
+
 axios.defaults.timeout = 10000;
 axios.defaults.headers.post["Content-Type"] =
   "application/x-www-form-urlencoded;charset=utf-8";
 
 //请求拦截,加入token,考虑localStorage 改 sessionStorage
 axios.interceptors.request.use(
-  config => {
+  (config) => {
+    if (config.url.startsWith("/search")) config.baseURL = baseURL[1];
+    else config.baseURL = baseURL[0];
     const token = window.localStorage.getItem("token");
     token && (config.headers.token = "token" + localStorage.getItem("token"));
     return config;
   },
-  error => {
+  (error) => {
+    // alert(JSON.stringify(error));
     Message({
       showClose: true,
       message: error,
-      type: "warning"
+      type: "warning",
     });
     return Promise.reject(error);
   }
 );
 //拦截response并进行result的错误处理，返回result.data
 axios.interceptors.response.use(
-  response => {
+  (response) => {
+    console.log(response.data);
     if (response.status === 200) {
       return Promise.resolve(response);
     } else {
       return Promise.reject(response);
     }
   },
-  error => {
+  (error) => {
+    var message;
     if (error && error.response) {
-      let message = "";
+      message = "";
       switch (error.response.status) {
         case 400:
           message = "请求错误(400)";
@@ -72,7 +78,7 @@ axios.interceptors.response.use(
       }
       Message({
         message: message,
-        duration: 1500
+        duration: 1500,
       });
     } else {
       message = "连接服务器失败";
@@ -84,7 +90,7 @@ axios.interceptors.response.use(
 const postEncodedRequest = (url, data) => {
   return axios.post(url, data, {
     transformRequest: [
-      function(data) {
+      function (data) {
         // Do whatever you want to transform the data
         let ret = "";
         for (let it in data) {
@@ -92,25 +98,30 @@ const postEncodedRequest = (url, data) => {
             encodeURIComponent(it) + "=" + encodeURIComponent(data[it]) + "&";
         }
         return ret;
-      }
-    ]
+      },
+    ],
   });
 };
 const postParamRequest = (url, params) => {
+  // console.log(qs.stringify(params));
   return axios.post(url, qs.stringify(params));
 };
 const postJsonRequest = (url, data) => {
-  return axios.post(url, data, {
-    headers: {
-      "Content-Type": "application/json"
+  return axios.post(
+    url,
+    { ...data },
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
     }
-  });
+  );
 };
 const uploadFileRequest = (url, data) => {
   return axios.post(url, data, {
     headers: {
-      "Content-Type": "multipart/form-data"
-    }
+      "Content-Type": "multipart/form-data",
+    },
   });
 };
 
@@ -124,5 +135,5 @@ export {
   postEncodedRequest,
   postJsonRequest,
   uploadFileRequest,
-  axios
+  axios,
 };

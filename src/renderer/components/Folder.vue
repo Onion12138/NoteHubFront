@@ -1,7 +1,8 @@
+
 <template>
   <el-table
     :data="tableData"
-    style="width: 100%;cursor:pointer"
+    style="width: 100%;"
     ref="singleTable"
     highlight-current-row
     @current-change="handleCurrentChange"
@@ -28,7 +29,7 @@
           @keyup.enter.native="handleFolderAdd"
         />
       </template>
-      <template slot-scope="scope" v-if="scope.$index!==0">
+      <template slot-scope="scope">
         <el-button size="mini" @click.stop="handleEdit(scope.$index, scope.row)">重命名</el-button>
         <el-button size="mini" type="danger" @click.stop="handleDelete(scope.$index, scope.row)">删除</el-button>
       </template>
@@ -48,6 +49,9 @@
 </template>
 
 <script>
+import { getRequest, postJsonRequest, postParamRequest } from "@/utils/request";
+// import "@/utils/mock";
+
 export default {
   data() {
     return {
@@ -55,63 +59,69 @@ export default {
       folderName: "",
       newFolderName: "",
       currentRow: null,
-      tableData: [
-        {
-          id: "0",
-          name: "默认收藏夹"
-        },
-        {
-          id: "1",
-          name: "JAVA基础"
-        },
-        {
-          id: "2",
-          name: "MYSQL"
-        },
-        {
-          id: "3",
-          name: "DUBBO"
-        }
-      ]
+      mindMaps: []
     };
+  },
+  mounted() {
+    this.getMindMap();
+  },
+  computed: {
+    tableData: function() {
+      return this.mindMaps.map((item, index) => {
+        return Object.assign(
+          {},
+          {
+            id: String(index),
+            name: item.label
+          }
+        );
+      });
+    }
   },
   methods: {
     // setCurrent(row) {
     //   this.$refs.singleTable.setCurrentRow(row);
     // },
+    getMindMap() {
+      getRequest("/user/getMindMap").then(response => {
+        this.mindMaps = response.data.data; //array
+      });
+    },
     change(e) {
       this.$forceUpdate();
     },
+
     handleFolderNameModify() {
-      this.tableData = this.tableData.map(item => {
-        if (item.id === this.currentRow.id)
-          return { ...item, name: this.newFolderName };
+      this.mindMaps = this.mindMaps.map((item, index) => {
+        if (index === this.currentRow.id)
+          return {
+            ...item,
+            label: this.newFolderName,
+            value: this.newFolderName
+          };
         else return item;
       });
       this.modifyFolderNameVisible = false;
     },
     handleFolderAdd() {
-      console.log(this.tableData[this.tableData.length - 1].id);
-      const newId = Number(this.tableData[this.tableData.length - 1].id) + 1;
-      this.tableData = [
-        ...this.tableData,
-        {
-          id: newId,
-          name: this.folderName
-        }
-      ];
+      const newMindMap = {
+        children: [],
+        label: this.folderName,
+        value: this.folderName
+      };
+      this.mindMaps = [...this.mindMaps, newMindMap];
+      postJsonRequest("/user/addMindMap", newMindMap).then(response => {
+        this.$notify.success({
+          title: "新建成功"
+        });
+      });
     },
     handleCurrentChange(val) {
       this.currentRow = val;
-
-      if (val.id === "0") {
-        this.$router.push({
-          name: "mindMap",
-          query: { isDefault: true }
-        });
-      } else {
-        this.$router.push({ name: "mindMap", query: { id: val.id } });
-      }
+      this.$router.push({
+        name: "mindMap",
+        query: { id: val.id, mindMap: JSON.stringify(this.mindMaps[val.id]) }
+      });
     },
     handleEdit(index, row) {
       this.currentRow = row;
@@ -119,8 +129,19 @@ export default {
     },
     handleDelete(index, row) {
       this.currentRow = row;
-      this.tableData = this.tableData.filter(item => item.id !== row.id);
+      const temp = this.mindMaps.slice();
+      temp.splice(index, 1);
+      this.mindMaps = temp.slice();
+      //`/user/deleteMindMap?index=${row.id}`
+      postParamRequest("/user/deleteMindMap", {
+        index: row.id
+      }).then(response => console.log(response.data));
     }
   }
 };
 </script>
+<style>
+.el-table__row:hover {
+  cursor: pointer;
+}
+</style>
