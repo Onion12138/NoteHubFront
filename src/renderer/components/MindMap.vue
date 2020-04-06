@@ -1,15 +1,15 @@
 <template>
   <div>
-    <el-header>
+    <el-header v-if="!isDefault">
       <el-button type="text" icon="el-icon-back" @click="goBack" style="padding-bottom: 0px;">返回</el-button>
     </el-header>
     <div id="mountNode"></div>
-    <el-row type="flex" justify="end">
+    <el-row v-if="!isDefault" type="flex" justify="end">
       <el-col :span="4">
         <el-button type="primary" @click="handleSubmit">保存</el-button>
       </el-col>
     </el-row>
-    <el-dialog title="新增节点" :visible.sync="addNodeVisible">
+    <el-dialog v-if="!isDefault" title="新增节点" :visible.sync="addNodeVisible">
       <el-input v-model="nodeName" placeholder="输入子节点名称" @keyup.enter.native="handleAddNode"></el-input>
       <div slot="footer" class="dialog-footer">
         <el-button @click="addNodeVisible = false">取 消</el-button>
@@ -57,9 +57,13 @@ insertCss(
 
 export default {
   name: "minimap",
+  props: ["mindmap"],
   mounted() {
+    console.log(this.mindmap);
+    this.isDefault = this.mindmap !== undefined;
     this.initG6();
     console.log(this.$route);
+    console.log(this.isDefault);
   },
   data() {
     return {
@@ -68,7 +72,8 @@ export default {
       nodeNumber: 0,
       graph: {}, //包含导图数据
       currentNode: {},
-      mindMapId: this.$route.query.id
+      mindMapId: this.$route.query.id || "",
+      isDefault: false
     };
   },
   methods: {
@@ -281,7 +286,7 @@ export default {
         },
         layout: {
           type: "compactBox",
-          direction: "LR",
+          direction: "H",
           getId: function getId(d) {
             return d.id;
           },
@@ -344,7 +349,13 @@ export default {
 
       //前端重新维护id
 
-      const data = JSON.parse(this.$route.query.mindMap);
+      const data =
+        (this.$route.query &&
+          this.$route.query.mindMap &&
+          JSON.parse(this.$route.query.mindMap)) ||
+        (this.mindmap && JSON.parse(this.mindmap)) ||
+        {};
+
       G6.Util.traverseTree(data, function(item) {
         // item.id = item.name;
         item.id = String(that.nodeNumber++);

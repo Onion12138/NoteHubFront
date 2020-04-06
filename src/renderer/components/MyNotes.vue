@@ -1,36 +1,37 @@
 
 <template>
   <div class="myNotesContainer">
-    <el-card style="width:33%" v-for="(note,index) in notes" class="box-card" :key="note.id">
+    <el-card style="width:33%" class="box-card" v-for="(note,index) in notes" :key="note.id">
       <div slot="header" class="clearfix">
         <el-row type="flex" justify="space-between">
           <el-col style="margin: auto 0">
             <el-link type="primary" @click.stop.prevent="linkToEdit(note)">{{note.description}}</el-link>
           </el-col>
           <el-col style="textAlign: right">
-            <el-tag :type="tagType[index]">{{note.tag}}</el-tag>
+            <el-tag :type="tagType[index%5]">{{note.tag}}</el-tag>
           </el-col>
         </el-row>
       </div>
-      <span>{{note.summary | summaryFilter}}</span>
-      <el-divider>
-        <i class="el-icon-notebook-1"></i>
-      </el-divider>
-
-      <el-row
-        type="flex"
-        justify="space-between"
-        style="color:rgb(165,165,165);fontSize:0.8rem;height:40px;textAlign:center"
-      >
-        <el-col>
-          <i class="el-icon-time"></i>
-          <span style="margin-left: 10px">发布于 {{ note.createTime|timeFilter }}</span>
-        </el-col>
-        <el-col>
-          <i class="el-icon-time"></i>
-          <span style="margin-left: 10px;textAlign:right">更新于 {{ note.updateTime|timeFilter }}</span>
-        </el-col>
-      </el-row>
+      <el-container style="width:100%;height:215px">
+        <el-main>
+          <div>{{note.summary | summaryFilter}}</div>
+        </el-main>
+        <el-footer>
+          <el-divider>
+            <i class="el-icon-notebook-1"></i>
+          </el-divider>
+          <el-row class="bottom-time" type="flex" justify="space-between">
+            <el-col>
+              <i class="el-icon-time"></i>
+              <span style="margin-left: 10px;textAlign:left">发布于 {{ note.createTime|timeFilter }}</span>
+            </el-col>
+            <el-col>
+              <i class="el-icon-time"></i>
+              <span style="margin-left: 10px;textAlign:right">更新于 {{ note.updateTime|timeFilter }}</span>
+            </el-col>
+          </el-row>
+        </el-footer>
+      </el-container>
     </el-card>
   </div>
 </template>
@@ -43,7 +44,7 @@ export default {
   data() {
     return {
       notes: {},
-      tagType: ["success", "info", "danger", "warning"]
+      tagType: ["success", "info", "danger", "warning", "primary"]
     };
   },
   mounted() {
@@ -81,6 +82,20 @@ export default {
 </script>
 
 <style scoped>
+.el-card__body {
+  padding: 0px;
+}
+
+.el-footer {
+  padding: 0px;
+}
+
+.bottom-time {
+  text-align: center;
+  color: rgb(165, 165, 165);
+  font-size: 0.8rem;
+}
+
 .myNotesContainer {
   width: 100%;
   height: 100%;
@@ -92,7 +107,7 @@ export default {
   box-sizing: border-box;
   background-color: white;
   flex: 0 0 46%;
-  height: 250px;
+  height: 325px;
   margin: 0.5rem;
 }
 

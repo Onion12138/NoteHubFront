@@ -262,6 +262,7 @@ export default {
 }
 .el-col-setting {
   text-align: right;
+  margin: auto 0;
 }
 .el-header {
   position: relative;

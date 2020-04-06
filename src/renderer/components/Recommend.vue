@@ -8,7 +8,7 @@
 
     <h2 style="margin: 20px 0 20px 10px;">为你推荐</h2>
 
-    <el-collapse v-model="activeNames" @change="handleChange">
+    <el-collapse v-model="activeNames">
       <el-collapse-item v-for="(note,index) in notes" :name="index" :key="note.id">
         <template slot="title">
           <el-link type="primary" @click.stop.prevent="linkToNote(note.id)">{{note.description}}</el-link>

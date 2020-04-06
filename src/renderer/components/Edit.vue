@@ -1,5 +1,8 @@
 <template>
   <el-container>
+    <el-header v-if="isModify">
+      <el-button type="text" icon="el-icon-back" @click="goBack" style="padding-bottom: 0px;">返回</el-button>
+    </el-header>
     <el-main>
       <el-input style="margin-bottom:1.2rem" v-model="note.description" placeholder="请输入笔记的描述信息"></el-input>
       <mavon-editor style="min-height:450px" v-model="note.content" />
@@ -26,7 +29,7 @@
     <el-footer>
       <div style="display: flex;align-items: center;margin-top: 15px;justify-content: flex-end">
         <el-button v-if="isModify" type="danger" icon="el-icon-delete" @click="deleteNote">删除笔记</el-button>
-        <el-button type="warning" icon="el-icon-caret-left" @click="cancelModify">放弃修改</el-button>
+        <el-button v-else type="warning" icon="el-icon-caret-left" @click="cancelModify">放弃修改</el-button>
         <el-button v-if="isModify" type="primary" icon="el-icon-upload" @click="modify">修改笔记</el-button>
         <el-button v-else type="primary" icon="el-icon-upload" @click="publish">发布笔记</el-button>
       </div>
@@ -80,6 +83,9 @@ export default {
     });
   },
   methods: {
+    goBack() {
+      this.$router.go(-1);
+    },
     modify() {
       if (this.checkForm()) {
         const data = {
