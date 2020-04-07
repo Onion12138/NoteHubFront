@@ -23,7 +23,7 @@
         <el-table-column label="发布于">
           <template slot-scope="scope">
             <i class="el-icon-time"></i>
-            <span style="margin-left: 10px">{{ scope.row.createTime | formatDateTime}}</span>
+            <span style="margin-left: 10px">{{ scope.row.createTime |timeFilter}}</span>
           </template>
         </el-table-column>
         <el-table-column label="更新于">
@@ -82,22 +82,8 @@
 </template>
 <script>
 import { getRequest } from "@/utils/request";
-import Vue from "vue";
-Vue.filter("formatDateTime", function formatDateTime(value) {
-  let date = new Date(value);
-  let year = date.getFullYear();
-  let month = date.getMonth();
-  let day = date.getDate();
-  let hours = date.getHours();
-  let minutes = date.getMinutes();
-  if (month < 10) {
-    month = "0" + month;
-  }
-  if (day < 10) {
-    day = "0" + day;
-  }
-  return year + "-" + month + "-" + day + " " + hours + ":" + minutes;
-});
+import { timestampFormat } from "@/utils/timeUtils";
+
 export default {
   data() {
     return {
@@ -125,6 +111,9 @@ export default {
   filters: {
     summaryFilter(summary) {
       return summary.slice(0, 100);
+    },
+    timeFilter(time) {
+      return timestampFormat(time);
     }
   },
   methods: {

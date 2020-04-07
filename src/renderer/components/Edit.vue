@@ -99,6 +99,7 @@ export default {
               title: "修改成功",
               position: "bottom-right"
             });
+            this.$router.go(-1);
           }
         });
       }
@@ -146,6 +147,9 @@ export default {
             title: "发布成功",
             position: "bottom-right"
           });
+          if (this.$route.query) {
+            this.$router.go(-1);
+          }
         });
       }
     },

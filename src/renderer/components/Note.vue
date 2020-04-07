@@ -298,22 +298,31 @@ export default {
     },
     refreshNote(noteId) {
       getRequest("/note/findOne", { noteId: noteId }).then(response => {
-        this.note.noteId = noteId;
-        let data = response.data.data;
-        this.note.description = data.description;
-        this.note.content = data.content;
-        this.note.tag = data.tag.replace(",", "/");
-        this.note.authority = data.authority;
-        this.note.authorEmail = data.authorEmail;
-        this.note.forkFrom = data.forkFrom;
-        this.titleTree = data.titleTree;
-        getRequest("/user/findUser", {
-          email: this.note.authorEmail
-        }).then(response => {
+        if (response.data.code === -1) {
+          this.$notify.warning({
+            title: "警告",
+            position: "bottom-right",
+            message: response.data.message
+          });
+          this.$router.go(-1);
+        } else {
+          this.note.noteId = noteId;
           let data = response.data.data;
-          this.author.username = data.username;
-          this.author.profileUrl = data.profileUrl;
-        });
+          this.note.description = data.description;
+          this.note.content = data.content;
+          this.note.tag = data.tag.replace(",", "/");
+          this.note.authority = data.authority;
+          this.note.authorEmail = data.authorEmail;
+          this.note.forkFrom = data.forkFrom;
+          this.titleTree = data.titleTree;
+          getRequest("/user/findUser", {
+            email: this.note.authorEmail
+          }).then(response => {
+            let data = response.data.data;
+            this.author.username = data.username;
+            this.author.profileUrl = data.profileUrl;
+          });
+        }
       });
       getRequest("/note/counter", { noteId: noteId }).then(response => {
         let data = response.data.data;
