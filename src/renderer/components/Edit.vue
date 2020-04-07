@@ -5,7 +5,7 @@
     </el-header>
     <el-main>
       <el-input style="margin-bottom:1.2rem" v-model="note.description" placeholder="请输入笔记的描述信息"></el-input>
-      <mavon-editor style="min-height:450px" v-model="note.content" />
+      <mavon-editor ref="mavon" @imgAdd="$imgAdd" style="min-height:450px" v-model="note.content" />
       <div class="block">
         <el-cascader
           v-if="!isModify"
@@ -38,11 +38,17 @@
 </template>
 
 <script>
-import { getRequest, postEncodedRequest } from "@/utils/request";
+import {
+  getRequest,
+  postEncodedRequest,
+  uploadFileRequest
+} from "@/utils/request";
 export default {
   name: "edit",
   data() {
     return {
+      tags: [],
+      isModify: false,
       note: {
         id: "",
         content: "",
@@ -50,9 +56,7 @@ export default {
         tag: "",
         authority: true,
         forkFrom: ""
-      },
-      tags: [],
-      isModify: false
+      }
     };
   },
   mounted() {
@@ -85,6 +89,15 @@ export default {
   methods: {
     goBack() {
       this.$router.go(-1);
+    },
+    $imgAdd(pos, $file) {
+      const formdata = new FormData();
+      formdata.append("file", $file);
+      formdata.append("noteId", this.note.id);
+      uploadFileRequest("/note/uploadPicture", formdata).then(response => {
+        const url = response.data.data;
+        this.$refs.mavon.$img2Url(pos, url);
+      });
     },
     modify() {
       if (this.checkForm()) {

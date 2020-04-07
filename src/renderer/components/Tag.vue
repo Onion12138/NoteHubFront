@@ -29,7 +29,7 @@
         <el-table-column label="更新于">
           <template slot-scope="scope">
             <i class="el-icon-time"></i>
-            <span style="margin-left: 10px">{{ scope.row.updateTime | formatDateTime }}</span>
+            <span style="margin-left: 10px">{{ scope.row.updateTime | timeFilter }}</span>
           </template>
         </el-table-column>
         <el-table-column label="描述">

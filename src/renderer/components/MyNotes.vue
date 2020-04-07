@@ -1,6 +1,12 @@
 
 <template>
-  <div class="myNotesContainer">
+  <div
+    class="myNotesContainer"
+    v-loading="loading"
+    element-loading-text="拼命加载中"
+    element-loading-spinner="el-icon-loading"
+    element-loading-background="rgba(0, 0, 0, 0.8)"
+  >
     <el-card style="width:33%" class="box-card" v-for="(note,index) in notes" :key="note.id">
       <div slot="header" class="clearfix">
         <el-row type="flex" justify="space-between">
@@ -44,6 +50,7 @@ export default {
   data() {
     return {
       notes: {},
+      loading: true,
       tagType: ["success", "info", "danger", "warning", "primary"]
     };
   },
@@ -73,8 +80,10 @@ export default {
       });
     },
     getMyNotes() {
+      this.loading = true;
       getRequest("/note/myPublish").then(response => {
         this.notes = response.data.data;
+        this.loading = false;
       });
     }
   }

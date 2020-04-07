@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain, globalShortcut } from "electron";
 
 /**
  * Set `__static` path to static files in production
@@ -32,8 +32,8 @@ function createWindow() {
     resizable: true,
     webPreferences: {
       // devTools: false,
-      webSecurity: false
-    }
+      webSecurity: false,
+    },
   });
 
   mainWindow.setMenu(null);
@@ -42,6 +42,16 @@ function createWindow() {
   mainWindow.on("closed", () => {
     mainWindow = null;
   });
+
+  if (process.platform === "darwin") {
+    let contents = mainWindow.webContents;
+    globalShortcut.register("CommandOrControl+C", () => {
+      contents.copy();
+    });
+    globalShortcut.register("CommandOrControl+V", () => {
+      contents.paste();
+    });
+  }
 }
 
 app.on("ready", createWindow);
