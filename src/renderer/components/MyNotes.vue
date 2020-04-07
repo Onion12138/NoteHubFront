@@ -1,26 +1,32 @@
-
 <template>
   <div
     class="myNotesContainer"
     v-loading="loading"
     element-loading-text="拼命加载中"
     element-loading-spinner="el-icon-loading"
-    element-loading-background="rgba(0, 0, 0, 0.8)"
+    element-loading-background="rgba(255, 255, 255, 0.5)"
   >
-    <el-card style="width:33%" class="box-card" v-for="(note,index) in notes" :key="note.id">
+    <el-card
+      style="width:33%"
+      class="box-card"
+      v-for="(note, index) in notes"
+      :key="note.id"
+    >
       <div slot="header" class="clearfix">
         <el-row type="flex" justify="space-between">
           <el-col style="margin: auto 0">
-            <el-link type="primary" @click.stop.prevent="linkToEdit(note)">{{note.description}}</el-link>
+            <el-link type="primary" @click.stop.prevent="linkToEdit(note)">{{
+              note.description
+            }}</el-link>
           </el-col>
           <el-col style="textAlign: right">
-            <el-tag :type="tagType[index%5]">{{note.tag}}</el-tag>
+            <el-tag :type="tagType[index % 5]">{{ note.tag }}</el-tag>
           </el-col>
         </el-row>
       </div>
       <el-container style="width:100%;height:215px">
         <el-main>
-          <div>{{note.summary | summaryFilter}}</div>
+          <div>{{ note.summary | summaryFilter }}</div>
         </el-main>
         <el-footer>
           <el-divider>
@@ -29,11 +35,15 @@
           <el-row class="bottom-time" type="flex" justify="space-between">
             <el-col>
               <i class="el-icon-time"></i>
-              <span style="margin-left: 10px;textAlign:left">发布于 {{ note.createTime|timeFilter }}</span>
+              <span style="margin-left: 10px;textAlign:left"
+                >发布于 {{ note.createTime | timeFilter }}</span
+              >
             </el-col>
             <el-col>
               <i class="el-icon-time"></i>
-              <span style="margin-left: 10px;textAlign:right">更新于 {{ note.updateTime|timeFilter }}</span>
+              <span style="margin-left: 10px;textAlign:right"
+                >更新于 {{ note.updateTime | timeFilter }}</span
+              >
             </el-col>
           </el-row>
         </el-footer>
@@ -51,7 +61,7 @@ export default {
     return {
       notes: {},
       loading: true,
-      tagType: ["success", "info", "danger", "warning", "primary"]
+      tagType: ["success", "info", "danger", "warning", "primary"],
     };
   },
   mounted() {
@@ -63,7 +73,7 @@ export default {
     },
     summaryFilter(summary) {
       return summary.slice(0, 100);
-    }
+    },
   },
   methods: {
     linkToEdit(note) {
@@ -75,18 +85,18 @@ export default {
           content: note.content,
           forkFrom: note.forkFrom,
           authority: note.authority,
-          description: note.description
-        }
+          description: note.description,
+        },
       });
     },
     getMyNotes() {
       this.loading = true;
-      getRequest("/note/myPublish").then(response => {
+      getRequest("/note/myPublish").then((response) => {
         this.notes = response.data.data;
         this.loading = false;
       });
-    }
-  }
+    },
+  },
 };
 </script>
 

@@ -12,9 +12,7 @@
             </el-menu-item>
           </el-submenu>-->
           <el-submenu index="1">
-            <template slot="title">
-              <i class="el-icon-menu"></i>推荐
-            </template>
+            <template slot="title"> <i class="el-icon-menu"></i>推荐 </template>
             <el-menu-item index="1-1">
               <router-link to="/recommend">推荐</router-link>
             </el-menu-item>
@@ -35,9 +33,7 @@
             </el-menu-item>
           </el-submenu>
           <el-submenu index="3">
-            <template slot="title">
-              <i class="el-icon-user"></i>我的
-            </template>
+            <template slot="title"> <i class="el-icon-user"></i>我的 </template>
             <el-menu-item index="3-1">
               <router-link to="/mine">资料</router-link>
             </el-menu-item>
@@ -55,9 +51,7 @@
             </el-menu-item>-->
           </el-submenu>
           <el-submenu index="4">
-            <template slot="title">
-              <i class="el-icon-view"></i>记录
-            </template>
+            <template slot="title"> <i class="el-icon-view"></i>记录 </template>
             <el-menu-item index="4-1">
               <router-link to="/browseHistory">浏览记录</router-link>
             </el-menu-item>
@@ -78,7 +72,13 @@
               <a href="#" @click.prevent="openFileChooser">
                 <el-avatar class="user-profile" :src="profileUrl"></el-avatar>
               </a>
-              <input id="file" type="file" accept="image/*" ref="fileInput" @change="uploadProfile" />
+              <input
+                id="file"
+                type="file"
+                accept="image/*"
+                ref="fileInput"
+                @change="uploadProfile"
+              />
             </el-col>
             <el-col :span="4" class="el-col-setting">
               <el-dropdown @command="handleCommand" trigger="click">
@@ -86,14 +86,14 @@
                   <i class="el-icon-s-tools el-icon--right"></i>
                 </span>
                 <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item>
+                  <!-- <el-dropdown-item>
                     未读消息
                     <el-badge class="mark" :value="5" />
                   </el-dropdown-item>
                   <el-dropdown-item>
                     系统消息
                     <el-badge class="mark" :value="12" />
-                  </el-dropdown-item>
+                  </el-dropdown-item> -->
                   <el-dropdown-item command="logout">退出登录</el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
@@ -119,7 +119,7 @@ export default {
       winHeight: document.documentElement.clientHeight,
       profileUrl:
         localStorage.getItem("profileUrl") ||
-        "https://avatars2.githubusercontent.com/u/33611404?s=400&v=4"
+        "https://avatars2.githubusercontent.com/u/33611404?s=400&v=4",
     };
   },
   mounted() {
@@ -147,7 +147,7 @@ export default {
       //   return new Promise(resolve => setTimeout(resolve, ms));
       // };
       // await sleep(2000);
-      uploadFileRequest("/user/uploadProfile", form).then(response => {
+      uploadFileRequest("/user/uploadProfile", form).then((response) => {
         const url = response.data.data;
         if (response.data.code === 200) {
           localStorage.setItem("profileUrl", url);
@@ -164,8 +164,8 @@ export default {
         default:
           break;
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

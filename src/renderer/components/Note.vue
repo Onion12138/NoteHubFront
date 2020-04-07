@@ -298,6 +298,7 @@ export default {
     },
     refreshNote(noteId) {
       getRequest("/note/findOne", { noteId: noteId }).then(response => {
+        console.log(response.data);
         if (response.data.code === -1) {
           this.$notify.warning({
             title: "警告",
