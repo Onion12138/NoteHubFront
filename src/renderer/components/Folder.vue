@@ -1,4 +1,3 @@
-
 <template>
   <el-table
     :data="tableData"
@@ -26,23 +25,37 @@
           size="mini"
           placeholder="新建文件夹"
           @input="change($event)"
-          @keyup.enter.native="handleFolderAdd"
-        />
+        >
+          <el-button
+            slot="append"
+            icon="el-icon-folder-add"
+            @click="handleFolderAdd"
+          ></el-button
+        ></el-input>
       </template>
       <template slot-scope="scope">
-        <el-button size="mini" @click.stop="handleEdit(scope.$index, scope.row)">重命名</el-button>
-        <el-button size="mini" type="danger" @click.stop="handleDelete(scope.$index, scope.row)">删除</el-button>
+        <el-button size="mini" @click.stop="handleEdit(scope.$index, scope.row)"
+          >重命名</el-button
+        >
+        <el-button
+          size="mini"
+          type="danger"
+          @click.stop="handleDelete(scope.$index, scope.row)"
+          >删除</el-button
+        >
       </template>
     </el-table-column>
-    <el-dialog title="修改名称" :visible.sync="modifyFolderNameVisible" :append-to-body="true">
-      <el-input
-        v-model="newFolderName"
-        placeholder="输入新名称"
-        @keyup.enter.native="handleFolderNameModify"
-      ></el-input>
+    <el-dialog
+      title="修改名称"
+      :visible.sync="modifyFolderNameVisible"
+      :append-to-body="true"
+    >
+      <el-input v-model="newFolderName" placeholder="输入新名称"></el-input>
       <div slot="footer" class="dialog-footer">
         <el-button @click="modifyFolderNameVisible = false">取 消</el-button>
-        <el-button type="primary" @click="handleFolderNameModify">确 定</el-button>
+        <el-button type="primary" @click="handleFolderNameModify"
+          >确 定</el-button
+        >
       </div>
     </el-dialog>
   </el-table>
@@ -59,7 +72,7 @@ export default {
       folderName: "",
       newFolderName: "",
       currentRow: null,
-      mindMaps: []
+      mindMaps: [],
     };
   },
   mounted() {
@@ -72,18 +85,18 @@ export default {
           {},
           {
             id: String(index),
-            name: item.label
+            name: item.label,
           }
         );
       });
-    }
+    },
   },
   methods: {
     // setCurrent(row) {
     //   this.$refs.singleTable.setCurrentRow(row);
     // },
     getMindMap() {
-      getRequest("/user/getMindMap").then(response => {
+      getRequest("/user/getMindMap").then((response) => {
         this.mindMaps = response.data.data; //array
       });
     },
@@ -92,27 +105,47 @@ export default {
     },
 
     handleFolderNameModify() {
+      let data;
+      const idx = this.currentRow.id;
       this.mindMaps = this.mindMaps.map((item, index) => {
-        if (index === this.currentRow.id)
+        if (index === Number(idx)) {
+          data = {
+            children: item.children,
+            label: this.newFolderName,
+            value: this.newFolderName,
+          };
           return {
             ...item,
             label: this.newFolderName,
-            value: this.newFolderName
+            value: this.newFolderName,
           };
-        else return item;
+        } else return item;
       });
       this.modifyFolderNameVisible = false;
+      console.log(idx);
+      console.log(data);
+      postJsonRequest(`/user/updateMindMap?index=${idx}`, { ...data }).then(
+        (response) => {
+          if (response.data.code === 200) {
+            this.$notify.success({
+              title: "修改成功",
+              position: "bottom-right",
+            });
+          }
+        }
+      );
     },
     handleFolderAdd() {
       const newMindMap = {
         children: [],
         label: this.folderName,
-        value: this.folderName
+        value: this.folderName,
       };
       this.mindMaps = [...this.mindMaps, newMindMap];
-      postJsonRequest("/user/addMindMap", newMindMap).then(response => {
+      postJsonRequest("/user/addMindMap", newMindMap).then((response) => {
         this.$notify.success({
-          title: "新建成功"
+          title: "新建成功",
+          position: "bottom-right",
         });
       });
     },
@@ -120,7 +153,7 @@ export default {
       this.currentRow = val;
       this.$router.push({
         name: "mindMap",
-        query: { id: val.id, mindMap: JSON.stringify(this.mindMaps[val.id]) }
+        query: { id: val.id, mindMap: JSON.stringify(this.mindMaps[val.id]) },
       });
     },
     handleEdit(index, row) {
@@ -134,10 +167,10 @@ export default {
       this.mindMaps = temp.slice();
       //`/user/deleteMindMap?index=${row.id}`
       postParamRequest("/user/deleteMindMap", {
-        index: row.id
-      }).then(response => console.log(response.data));
-    }
-  }
+        index: row.id,
+      }).then((response) => console.log(response.data));
+    },
+  },
 };
 </script>
 <style>
