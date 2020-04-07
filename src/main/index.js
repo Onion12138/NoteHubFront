@@ -51,6 +51,12 @@ function createWindow() {
     globalShortcut.register("CommandOrControl+V", () => {
       contents.paste();
     });
+    globalShortcut.register("CommandOrControl+Z", () => {
+      contents.undo();
+    });
+    globalShortcut.register("CommandOrControl+X", () => {
+      contents.cut();
+    });
   }
 }
 
