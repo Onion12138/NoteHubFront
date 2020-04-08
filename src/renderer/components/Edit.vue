@@ -113,6 +113,11 @@ export default {
               position: "bottom-right"
             });
             this.$router.go(-1);
+          } else {
+            this.$notify.warning({
+              title: response.data.message,
+              position: "bottom-right"
+            });
           }
         });
       }
@@ -154,14 +159,21 @@ export default {
         });
         // console.log("send");
         postEncodedRequest("/note/publish", data).then(response => {
-          const data = response.data.data;
-          this.note = Object.assign({}, this.note, { id: data });
-          this.$notify.success({
-            title: "发布成功",
-            position: "bottom-right"
-          });
-          if (this.$route.query) {
-            this.$router.go(-1);
+          if (response.data.code === 200) {
+            const data = response.data.data;
+            this.note = Object.assign({}, this.note, { id: data });
+            this.$notify.success({
+              title: "发布成功",
+              position: "bottom-right"
+            });
+            if (this.$route.query) {
+              this.$router.go(-1);
+            }
+          } else {
+            this.$notify.warning({
+              title: response.data.message,
+              position: "bottom-right"
+            });
           }
         });
       }
